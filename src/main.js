@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { loadAll } from './loader.js';
 import { Collision } from './collision.js';
+import { applyStageEdits, setupNightProps } from './stage-edits.js';
+import { now, inHours, setTime } from './schedule.js';
 import { Player } from './player.js';
 import { NavGraph } from './nav.js';
 import { Residents } from './npc.js';
@@ -59,8 +61,11 @@ try {
   $('msg').textContent = `読み込みに失敗しました: ${e.message}`;
   throw e;
 }
+applyStageEdits(world.stage);
 scene.add(world.stage);
 const collision = new Collision(world.stage);
+const setNight = setupNightProps(world.stage, collision);
+setNight(inHours(now(), 23, 5));
 
 const player = new Player(camera, canvas, collision, world.spawns);
 const startIdx = Math.max(0, world.spawns.findIndex((s) => s.name.includes('玄関土間')));
@@ -97,6 +102,39 @@ document.addEventListener('mousedown', (e) => {
   if (e.button === 0 && player.locked) talk?.input('click'); // 照準（画面中央）の先をクリック
 });
 
+// ---- 撮影（F5）・カーソル切り替え（V）
+const toastEl = $('toast');
+let toastTimer = 0;
+function toast(text) {
+  toastEl.textContent = text;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2200);
+}
+function screenshot() {
+  renderer.render(scene, camera); // 描いた直後に読み出す（描画バッファが消える前に）
+  canvas.toBlob((blob) => {
+    const d = new Date(), z = (n) => String(n).padStart(2, '0');
+    const name = `ookeyaki_${d.getFullYear()}${z(d.getMonth() + 1)}${z(d.getDate())}_${z(d.getHours())}${z(d.getMinutes())}${z(d.getSeconds())}.png`;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    toast(`撮影しました（${name}）`);
+  }, 'image/png');
+}
+const cross = $('cross');
+const setHand = (on) => {
+  cross.classList.toggle('hand', on);
+  try { localStorage.setItem('cursor', on ? 'hand' : 'point'); } catch {}
+};
+try { setHand(localStorage.getItem('cursor') === 'hand'); } catch {}
+addEventListener('keydown', (e) => {
+  if (e.code === 'F5') { e.preventDefault(); screenshot(); } // 再読み込みの代わりに撮影
+  if (e.code === 'KeyV' && !e.repeat) setHand(!cross.classList.contains('hand'));
+});
+
 // ---- 毎フレーム
 const hud = $('hud');
 const clock = new THREE.Clock();
@@ -110,10 +148,12 @@ renderer.setAnimationLoop(() => {
   fpsN++; fpsT += dt;
   if (fpsT > 0.5) {
     const p = player.feet;
-    hud.textContent = `x ${p.x.toFixed(1)}  y ${p.y.toFixed(1)}  z ${p.z.toFixed(1)}   ${(fpsN / fpsT).toFixed(0)} fps`;
+    const d = now();
+    setNight(inHours(d, 23, 5));
+    hud.textContent = `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}   x ${p.x.toFixed(1)}  y ${p.y.toFixed(1)}  z ${p.z.toFixed(1)}   ${(fpsN / fpsT).toFixed(0)} fps`;
     fpsN = 0; fpsT = 0;
   }
 });
 
 // 動作確認・ナビ生成用
-window.app = { THREE, scene, camera, renderer, collision, player, world, nav, residents, talk };
+window.app = { THREE, scene, camera, renderer, collision, player, world, nav, residents, talk, setTime, screenshot };

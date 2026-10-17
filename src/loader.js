@@ -11,14 +11,18 @@ const SIZES = __ASSET_SIZES__;
 
 export const FILES = {
   stage: 'assets/stage/OokeyakiRyokan.web.glb', // npm run optimize-stage で元の .glb から作る軽量版
-  kyokucho: 'assets/characters/kyokucho.vrm',
-  hachi: 'assets/characters/hachi.vrm',
-  shinkuro: 'assets/characters/shinkuro.vrm',
+  // npm run optimize-vrm で元の .vrm から作る軽量版（画像だけ WebP・最大 1024px）
+  kyokucho: 'assets/characters/kyokucho.web.vrm',
+  hachi: 'assets/characters/hachi.web.vrm',
+  shinkuro: 'assets/characters/shinkuro.web.vrm',
 };
 
 const url = (p) => new URL(p, document.baseURI).href;
-// 開発用: ?stage=full で軽量化前の舞台を読む（見た目・当たりの比較用。本番には載せていない）
-if (new URLSearchParams(location.search).get('stage') === 'full') FILES.stage = 'assets/stage/OokeyakiRyokan.glb';
+// 開発用: ?stage=full で軽量化前の舞台と VRM を読む（見た目・当たりの比較用。本番には載せていない）
+if (new URLSearchParams(location.search).get('stage') === 'full') {
+  FILES.stage = 'assets/stage/OokeyakiRyokan.glb';
+  for (const n of ['kyokucho', 'hachi', 'shinkuro']) FILES[n] = `assets/characters/${n}.vrm`;
+}
 
 async function fetchWithProgress(path, onBytes) {
   const res = await fetch(url(path));
