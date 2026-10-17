@@ -124,7 +124,7 @@ class Resident {
     const floorKind = s.kind === 'zabuton' || s.kind === 'zaisu';
     this.pose.sitKind = floorKind ? 'floor' : 'chair';
     // 腰の高さ（ルートから）: 座面 + 尻の厚み
-    this.pose.hipsY = s.position[1] - this.seatFloorY + (floorKind ? 0.1 : 0.1);
+    this.pose.hipsY = s.position[1] - this.seatFloorY + (floorKind ? 0.08 : 0.03);
     this.sitHold = rand(this.stay || [10, 20]);
   }
 
