@@ -6,6 +6,14 @@ const WALK_SPEED = 1.15;
 const TURN_RATE = 6;          // rad/s
 const SIT_TIME = 0.9;         // 座る・立つの遷移秒
 const rand = ([a, b]) => a + Math.random() * (b - a);
+const NOTICE_R = 3.0;         // この距離まで近づくと立ち止まってこちらを見る
+const NOTICE_OUT = 3.6;       // 離れたら元の動きに戻る距離
+const TALK_R = 1.4;           // 正面のこの距離で会話
+export const TALK = {
+  kyokucho: { name: '局長', line: 'どうしたの？' },
+  hachi: { name: 'Hachi', line: 'どうされましたか？' },
+  shinkuro: { name: '真九郎', line: 'どうしたのですん？' },
+};
 
 function angleLerp(a, b, t) {
   let d = ((b - a + Math.PI) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2) - Math.PI;
@@ -31,6 +39,41 @@ class Resident {
     this.seatT = 0;
     this.seatFrom = new THREE.Vector3();
     this.seatYawFrom = 0;
+    this.attending = false; // プレイヤーに気づいて見ている
+    this.talkable = false;  // 正面で話せる距離にいる
+    this.dist = Infinity;
+  }
+
+  /** プレイヤー（eye = 目の位置）との距離から、気づく・話せるを決める */
+  sense(eye) {
+    const pos = this.root.position;
+    const dy = eye.y - pos.y;
+    const same = dy > 0.3 && dy < 2.6; // 同じ階にいる
+    this.dist = same ? Math.hypot(eye.x - pos.x, eye.z - pos.z) : Infinity;
+    // 座る・立つの途中は気づいても動きを止めない
+    const busy = this.state === 'sitting' || this.state === 'standing';
+    if (!this.attending && this.dist < NOTICE_R && !busy) this.attending = true;
+    else if (this.attending && this.dist > NOTICE_OUT) this.attending = false;
+    // 正面: キャラの向きから ±50° 以内
+    const toward = Math.atan2(eye.x - pos.x, eye.z - pos.z);
+    const off = Math.abs(angleLerp(0, toward - this.yaw, 1));
+    this.talkable = this.attending && this.dist < TALK_R && off < 0.9;
+    this.toward = toward;
+  }
+
+  /** 首と目をプレイヤーへ。立っているなら体ごと向く */
+  attend(dt, eye) {
+    const p = this.pose, pos = this.root.position;
+    const standing = this.state === 'walk' || this.state === 'idle';
+    if (standing) {
+      p.walk = Math.max(0, p.walk - dt * 5);
+      this.yaw = angleLerp(this.yaw, this.toward, Math.min(1, 4 * dt));
+    }
+    const rel = Math.max(-1.0, Math.min(1.0, angleLerp(0, this.toward - this.yaw, 1)));
+    const headY = pos.y + (this.state === 'sit-stay' ? 0.95 : 1.4);
+    const pitch = -Math.atan2(eye.y - headY, Math.max(0.3, this.dist));
+    p.lookYaw = THREE.MathUtils.lerp(p.lookYaw, rel, Math.min(1, 6 * dt));
+    p.lookPitch = THREE.MathUtils.lerp(p.lookPitch, Math.max(-0.5, Math.min(0.5, pitch)), Math.min(1, 6 * dt));
   }
 
   place(nodeIdx) {
@@ -69,12 +112,27 @@ class Resident {
     this.state = 'walk';
   }
 
-  update(dt) {
+  update(dt, eye, camera) {
     const p = this.pose;
     const pos = this.root.position;
     const nav = this.world.nav;
+    if (eye) this.sense(eye);
+    else this.attending = this.talkable = false;
+    this.vrm.lookAt && (this.vrm.lookAt.target = this.attending ? camera : null);
+    if (!this.attending) {
+      p.lookYaw = THREE.MathUtils.lerp(p.lookYaw, 0, Math.min(1, 3 * dt));
+      p.lookPitch = THREE.MathUtils.lerp(p.lookPitch, 0, Math.min(1, 3 * dt));
+      if (this.vrm.lookAt) { this.vrm.lookAt.yaw = 0; this.vrm.lookAt.pitch = 0; }
+    }
 
-    if (this.state === 'idle') {
+    if (this.attending && this.state !== 'sitting' && this.state !== 'standing') {
+      // 立ち止まって（座っていれば座ったまま）こちらを見る。タイマーも止める
+      this.attend(dt, eye);
+      p.speed = 0;
+      this.root.rotation.y = this.yaw;
+      p.update(dt);
+      return;
+    } else if (this.state === 'idle') {
       this.timer -= dt;
       p.walk = Math.max(0, p.walk - dt * 4);
       if (this.timer <= 0) this.nextStep();
@@ -167,5 +225,13 @@ export class Residents {
     }
   }
 
-  update(dt) { for (const r of this.list) r.update(dt); }
+  /** eye = プレイヤーの目の位置。いちばん近い「話せる」住人を返す */
+  update(dt, eye, camera) {
+    let talk = null;
+    for (const r of this.list) {
+      r.update(dt, eye, camera);
+      if (r.talkable && (!talk || r.dist < talk.dist)) talk = r;
+    }
+    return talk;
+  }
 }

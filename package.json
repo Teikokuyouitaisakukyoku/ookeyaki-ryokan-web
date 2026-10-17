@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "build-nav": "node scripts/build-nav.mjs"
+    "build-nav": "node scripts/build-nav.mjs",
+    "optimize-stage": "gltf-transform resize assets/stage/OokeyakiRyokan.glb .stage-tmp.glb --width 1024 --height 1024 && gltf-transform webp .stage-tmp.glb .stage-tmp2.glb --quality 80 && gltf-transform meshopt .stage-tmp2.glb assets/stage/OokeyakiRyokan.web.glb --level medium && rm .stage-tmp.glb .stage-tmp2.glb"
   },
   "dependencies": {
     "@pixiv/three-vrm": "^3.5.5",
@@ -15,6 +16,7 @@
     "three-mesh-bvh": "0.8.3"
   },
   "devDependencies": {
+    "@gltf-transform/cli": "^4.5.1",
     "playwright-core": "^1.49.0",
     "vite": "^6.0.0"
   }
