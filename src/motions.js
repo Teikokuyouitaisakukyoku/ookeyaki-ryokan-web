@@ -22,6 +22,9 @@ export const MOTIONS = {
   smallWave: `${B}/仕草モーション/G07_小さく手を振る/G07_小さく手を振る_SmallWave.vrma`,
   shy: `${B}/日常モーション/26_照れる/26_照れる_Shy.vrma`,
   angry: `${B}/日常モーション/28_怒る/28_怒る_Angry.vrma`,
+  surprise: `${B}/日常モーション/25_驚く/25_驚く_Surprise.vrma`,
+  laugh: `${B}/日常モーション/24_笑う/24_笑う_Laugh.vrma`,
+  pout: `${B}/仕草モーション/G18_ぷんっとそっぽ/G18_ぷんっとそっぽ_PoutTurn.vrma`,
 };
 
 /**

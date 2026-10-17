@@ -7,6 +7,8 @@ import { Player } from './player.js';
 import { NavGraph } from './nav.js';
 import { Residents } from './npc.js';
 import { Conversation } from './talk.js';
+import { VR } from './vr.js';
+import { pickRay, GRAB } from './touch.js';
 
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
@@ -74,7 +76,7 @@ player.goSpawn(startIdx);
 let residents = null;
 const nav = world.nav && !params.get('nonav') ? new NavGraph(world.nav) : null;
 if (nav) {
-  residents = new Residents(scene, world.vrms, nav, world.seats, world.spawns, world.clips);
+  residents = new Residents(scene, world.vrms, nav, world.seats, world.spawns, world.clips, collision);
 }
 
 const startEl = $('start');
@@ -93,14 +95,68 @@ startEl.classList.add('show');
 
 // ---- 会話（正面まで来た住人と話す。スペース／クリックで返事）
 const talk = residents ? new Conversation($('dialog'), residents, camera) : null;
-if (talk) talk.onEnd = () => startEl.classList.toggle('show', !player.locked);
+if (talk) talk.onEnd = () => startEl.classList.toggle('show', !player.locked && !vr?.active);
+let vr = null;
+if (residents) {
+  vr = new VR({ renderer, scene, camera, player, collision, residents, talk, button: $('vr-btn') });
+  vr.onStart = () => { document.exitPointerLock?.(); startEl.classList.remove('show'); document.body.classList.add('vr'); };
+  vr.onEnd = () => { document.body.classList.remove('vr'); startEl.classList.add('show'); };
+}
 addEventListener('keydown', (e) => {
   if (e.code === 'Space') { e.preventDefault(); talk?.input('key'); }
   if (e.code === 'Enter' || e.code === 'NumpadEnter') talk?.openLink();
 });
-document.addEventListener('mousedown', (e) => {
-  if (e.button === 0 && player.locked) talk?.input('click'); // 照準（画面中央）の先をクリック
-});
+
+// ---- タッチ（通常モード: 手のカーソルで住人をクリック。手・腕は押したまま動かすと引っ張る）
+const REACH = 2.5; // 手が届く距離
+const ray = new THREE.Ray();
+let press = null;  // 手・腕を押している: { r, part, t, at（押した点）, dragging }
+function aimRay() {
+  camera.getWorldPosition(ray.origin);
+  camera.getWorldDirection(ray.direction);
+  return ray;
+}
+function pickResident() {
+  if (!residents) return null;
+  aimRay();
+  let best = null;
+  for (const r of residents.list) {
+    if (r.root.position.distanceTo(ray.origin) > REACH + 1.5) continue;
+    const hit = pickRay(r.vrm, ray, REACH);
+    if (hit && (!best || hit.t < best.t)) best = { r, ...hit };
+  }
+  return best;
+}
+const handCursor = () => cross.classList.contains('hand');
+document.addEventListener('mousedown', (e) => { if (e.button === 0 && player.locked) pressStart(); });
+addEventListener('mouseup', (e) => { if (e.button === 0) pressEnd(); });
+function pressStart() {
+  if (handCursor()) {
+    const hit = pickResident();
+    if (hit) {
+      if (GRAB[hit.part] && hit.r.canGrab()) press = { ...hit, at: ray.at(hit.t, new THREE.Vector3()), dragging: false };
+      else talk?.touch(hit.r, hit.part);
+      return;
+    }
+  }
+  talk?.input('click'); // 照準（画面中央）の先をクリック: 返事・頭をなでる
+}
+function pressEnd() {
+  if (!press) return;
+  if (press.dragging) press.r.endDrag();
+  else talk?.touch(press.r, press.part); // 動かさずに離した = 触れた
+  press = null;
+}
+/** 押している間: 照準の先（押したときの距離）へ住人を引っ張る */
+function updatePress() {
+  if (!press) return;
+  const target = aimRay().at(press.t, new THREE.Vector3());
+  if (!press.dragging && Math.hypot(target.x - press.at.x, target.z - press.at.z) > 0.15) {
+    if (press.r.beginDrag(GRAB[press.part])) { press.dragging = true; talk?.touch(press.r, 'pull'); }
+    else { press = null; return; }
+  }
+  if (press.dragging) press.r.dragTarget.copy(target);
+}
 
 // ---- 撮影（F5）・カーソル切り替え（V）
 const toastEl = $('toast');
@@ -138,11 +194,13 @@ addEventListener('keydown', (e) => {
 // ---- 毎フレーム
 const hud = $('hud');
 const clock = new THREE.Clock();
+const eye = new THREE.Vector3();
 let fpsT = 0, fpsN = 0;
 renderer.setAnimationLoop(() => {
   const dt = Math.min(clock.getDelta(), 0.05);
-  player.update(dt);
-  const talker = residents?.update(dt, camera.position, camera);
+  if (vr?.active) vr.update(dt);
+  else { player.update(dt); updatePress(); }
+  const talker = residents?.update(dt, camera.getWorldPosition(eye), camera);
   talk?.update(dt, talker);
   renderer.render(scene, camera);
   fpsN++; fpsT += dt;
@@ -156,4 +214,4 @@ renderer.setAnimationLoop(() => {
 });
 
 // 動作確認・ナビ生成用
-window.app = { THREE, scene, camera, renderer, collision, player, world, nav, residents, talk, setTime, screenshot };
+window.app = { THREE, scene, camera, renderer, collision, player, world, nav, residents, talk, setTime, screenshot, vr, pickResident, aimRay, pressStart, pressEnd, updatePress, setHand };

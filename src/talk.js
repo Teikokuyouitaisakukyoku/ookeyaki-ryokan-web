@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { TALK, NOTICE_OUT } from './npc.js';
 import { NEWS } from './news.js';
+import { TOUCH } from './touch.js';
 
 const ANSWER_TIME = 3;   // 話しかけられてから、返事を待つ秒数
 const AFTER_TIME = 2.6;  // 返事・反応のせりふを見せる秒数
@@ -30,6 +31,7 @@ export class Conversation {
     this.t = 0;
     this.ray = new THREE.Ray();
     this.onEnd = () => {};
+    this.onShow = () => {}; // VR のパネルへ同じ内容を出す: ({ name, text, isPlayer, hint }) か null
   }
 
   show(name, text, isPlayer = false, link = null) {
@@ -49,6 +51,7 @@ export class Conversation {
       this.line.append(`「${text.slice(0, at)}`, a, `${text.slice(at + link.label.length)}」`);
     }
     this.dialog.classList.add('show');
+    this.onShow({ name, text, isPlayer, hint: this.state === 'ask' ? 'ask' : link ? 'news' : null });
   }
 
   /** candidate = 正面で話せる住人（いなければ null） */
@@ -77,6 +80,15 @@ export class Conversation {
     this.dialog.classList.add('asking');
   }
 
+  /** 住人に触れた（part）・引っ張り始めた（part = 'pull'）: 反応のせりふを出す */
+  touch(r, part) {
+    const line = part === 'pull' ? TOUCH[r.name].pull.line : r.reactTouch(part);
+    if (!line) return;
+    if (this.state !== 'none' && this.r !== r) this.end();
+    if (this.state === 'none') { this.r = r; this.residents.focus(r); }
+    this.after(TALK[r.name].name, line);
+  }
+
   /** スペース（kind = 'key'）か、照準でのクリック（kind = 'click'） */
   input(kind) {
     if (this.state !== 'ask') return;
@@ -95,7 +107,7 @@ export class Conversation {
     this.state = 'after';
     this.t = next ? REPLY_TIME : AFTER_TIME;
     this.next = next;
-    this.dialog.classList.remove('asking');
+    this.dialog.classList.remove('asking', 'news');
     this.show(name, text, isPlayer);
   }
 
@@ -122,7 +134,9 @@ export class Conversation {
   }
 
   end() {
+    if (this.state === 'none') return;
     this.next = null;
+    this.onShow(null);
     this.dialog.classList.remove('show', 'asking', 'news');
     this.r.loseInterest();
     this.residents.unfocus();

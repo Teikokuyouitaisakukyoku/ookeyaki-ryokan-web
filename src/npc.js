@@ -3,12 +3,15 @@ import { Pose } from './pose.js';
 import { ROUTES } from './routes.js';
 import { STYLE } from './motions.js';
 import { SCHEDULE, BEDS, now, inHours, nightOf } from './schedule.js';
+import { TOUCH } from './touch.js';
 
 const WALK_SPEED = 1.15;
 const TURN_RATE = 6;          // rad/s
 const SIT_TIME = 0.9;         // 座る・立つの遷移秒
 const rand = ([a, b]) => a + Math.random() * (b - a);
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
+const PULL_SPEED = 2.2;        // 引っ張られて動く最大速度(m/s)
+const ARM_LEN = 0.55;         // つかまれた手と体の距離
 const LIE_TIME = 1.8;         // 横になる・起き上がる秒
 const WAKE_R = 1.8;           // 寝ている住人がこの距離まで近づかれると起きる
 const NOTICE_R = 3.0;         // この距離まで近づくと立ち止まってこちらを見る
@@ -161,6 +164,7 @@ class Resident {
     const dy = eye.y - pos.y;
     const same = dy > 0.3 && dy < 2.6; // 同じ階にいる
     this.dist = same ? Math.hypot(eye.x - pos.x, eye.z - pos.z) : Infinity;
+    if (this.state === 'dragged') { this.talkable = false; return; }
     if (lying) { // 寝ている: 近くまで来られたら起きる
       if (this.state === 'sleeping' && this.dist < WAKE_R) this.wake(true);
       this.talkable = false;
@@ -192,6 +196,60 @@ class Resident {
     this.ignore = true;
     this.talkable = false;
     if (this.attending) this.endAttend();
+  }
+
+  // ---- タッチ・引っ張り
+  /** 触れられた: 反応のせりふを返す。立っていれば動きも付ける。寝ていれば起きる */
+  reactTouch(part) {
+    const t = TOUCH[this.name];
+    if (this.state === 'sleeping') { this.wake(true); return t.wake.line; }
+    if (this.state === 'lying' || this.state === 'waking' || this.state === 'dragged') return null;
+    const standing = this.state === 'walk' || this.state === 'idle';
+    if (standing) {
+      if (this.state === 'walk') { this.state = 'idle'; this.timer = 3; } // 立ち止まる
+      this.attending = true;
+      const m = t[part].motion;
+      if (m) this.pose.play(m, { once: true, fade: 0.25, onDone: () => this.state === 'idle' && this.pose.play(pick(this.style.idle), { fade: 0.5 }) });
+    }
+    return t[part].line;
+  }
+
+  /** 引っ張れるか（立っているときだけ） */
+  canGrab() { return this.state === 'walk' || this.state === 'idle'; }
+
+  beginDrag(side) {
+    if (!this.canGrab()) return false;
+    this.state = 'dragged';
+    this.attending = false;
+    this.talkable = false;
+    this.pose.play(null, { fade: 0.2 });
+    this.pose.reach = side;
+    this.dragTarget = this.root.position.clone();
+    this.dragBody = { vy: 0 };
+    return true;
+  }
+
+  updateDrag(dt) {
+    const p = this.pose, pos = this.root.position;
+    const dx = this.dragTarget.x - pos.x, dz = this.dragTarget.z - pos.z;
+    const d = Math.hypot(dx, dz);
+    if (d > 0.05) this.yaw = angleLerp(this.yaw, Math.atan2(dx, dz), Math.min(1, 8 * dt));
+    const want = Math.min(d - ARM_LEN, PULL_SPEED * dt);
+    const before = pos.clone();
+    if (want > 0) this.world.collision.moveBody(pos, new THREE.Vector3(dx / d * want, 0, dz / d * want), dt, this.dragBody);
+    const speed = Math.hypot(pos.x - before.x, pos.z - before.z) / dt;
+    p.walk += ((speed > 0.1 ? 1 : 0) - p.walk) * Math.min(1, dt * 8);
+    p.speed = speed;
+  }
+
+  endDrag() {
+    if (this.state !== 'dragged') return;
+    this.pose.reach = null;
+    const pos = this.root.position;
+    this.node = this.world.nav.nearest(pos.x, pos.y, pos.z);
+    this.state = 'idle';
+    this.timer = 2;
+    this.startIdle();
   }
 
   /** 会話中に頭をなでられた */
@@ -297,6 +355,12 @@ class Resident {
       if (this.vrm.lookAt) { this.vrm.lookAt.yaw = 0; this.vrm.lookAt.pitch = 0; }
     }
 
+    if (this.state === 'dragged') {
+      this.updateDrag(dt);
+      this.root.rotation.y = this.yaw;
+      p.update(dt);
+      return;
+    }
     if (this.attending && this.state !== 'sitting' && this.state !== 'standing') {
       // 立ち止まって（座っていれば座ったまま）こちらを見る。タイマーも止める
       this.attend(dt, eye);
@@ -398,10 +462,10 @@ class Resident {
 }
 
 export class Residents {
-  constructor(scene, vrms, nav, seats, spawns, clips = {}) {
+  constructor(scene, vrms, nav, seats, spawns, clips = {}, collision = null) {
     this.list = [];
     for (const [name, vrm] of Object.entries(vrms)) {
-      const r = new Resident(name, vrm, { nav, seats, spawns }, clips[name] || {});
+      const r = new Resident(name, vrm, { nav, seats, spawns, collision }, clips[name] || {});
       // 読み込んだ時刻の時間割で置く: 就寝中なら布団の上、自室待機なら自室の席、ほかは道順の最初の場所
       r.mode = r.wantMode(now());
       if (r.mode === 'sleep') r.sleepNow();
