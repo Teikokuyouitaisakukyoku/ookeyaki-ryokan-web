@@ -1,0 +1,28 @@
+Copyright (c) 2026 帝国妖異対策局 (Teikokuyouitaisakukyoku)
+All rights reserved.
+
+このリポジトリに含まれるプログラム（src/、scripts/、index.html、設定ファイルなど）と、
+素材（assets/ 以下の舞台モデル・キャラクターモデル（VRM）・モーション（VRMA）・テキストを含む）、
+キャラクター・設定・せりふの著作権は、すべて帝国妖異対策局に帰属します。
+
+公開されている Web 版（https://teikokuyouitaisakukyoku.github.io/ookeyaki-ryokan-web/）を
+個人で遊ぶこと、および遊んでいる様子のスクリーンショットや動画を共有することは自由です。
+
+上記以外の利用（素材やプログラムの複製・改変・再配布・転載、他の作品やサービスへの組み込み、
+キャラクターモデル・モーションの抜き出しや再利用など）は、帝国妖異対策局の書面による許諾がない限り
+禁止します。
+
+ただし、このアプリに含まれる第三者のソフトウェア（three.js、@pixiv/three-vrm、three-mesh-bvh、
+meshoptimizer、Tabler Icons）は、それぞれのライセンス（いずれも MIT License）に従います。
+著作権表示とライセンス文は THIRD_PARTY_NOTICES.md を参照してください。
+
+---
+
+Copyright (c) 2026 Teikokuyouitaisakukyoku. All rights reserved.
+
+All program code and assets in this repository (including the stage model, character models (VRM),
+motions (VRMA), characters, settings and dialogue) are the property of Teikokuyouitaisakukyoku.
+You may play the published web version for personal use and share screenshots or videos of it.
+Any other use, including copying, modifying, redistributing or extracting the code or assets,
+requires prior written permission. Third-party software included in this app is licensed under
+its own terms (MIT License); see THIRD_PARTY_NOTICES.md.
