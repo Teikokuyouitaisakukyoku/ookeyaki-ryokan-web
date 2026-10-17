@@ -28,10 +28,10 @@ function serveAssets() {
       });
     },
     closeBundle() {
-      // 元の重い舞台（OokeyakiRyokan.glb）は配信しない。軽量版 .web.glb だけを載せる
+      // 元の重い舞台・VRM は配信しない。軽量版（.web.glb / .web.vrm）だけを載せる
       fs.cpSync(ASSET_DIR, path.resolve('dist/assets'), {
         recursive: true,
-        filter: (src) => path.basename(src) !== 'OokeyakiRyokan.glb',
+        filter: (src) => !/^(OokeyakiRyokan\.glb|[^.]+\.vrm)$/.test(path.basename(src)),
       });
     },
   };

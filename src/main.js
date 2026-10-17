@@ -102,6 +102,39 @@ document.addEventListener('mousedown', (e) => {
   if (e.button === 0 && player.locked) talk?.input('click'); // 照準（画面中央）の先をクリック
 });
 
+// ---- 撮影（F5）・カーソル切り替え（V）
+const toastEl = $('toast');
+let toastTimer = 0;
+function toast(text) {
+  toastEl.textContent = text;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2200);
+}
+function screenshot() {
+  renderer.render(scene, camera); // 描いた直後に読み出す（描画バッファが消える前に）
+  canvas.toBlob((blob) => {
+    const d = new Date(), z = (n) => String(n).padStart(2, '0');
+    const name = `ookeyaki_${d.getFullYear()}${z(d.getMonth() + 1)}${z(d.getDate())}_${z(d.getHours())}${z(d.getMinutes())}${z(d.getSeconds())}.png`;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    toast(`撮影しました（${name}）`);
+  }, 'image/png');
+}
+const cross = $('cross');
+const setHand = (on) => {
+  cross.classList.toggle('hand', on);
+  try { localStorage.setItem('cursor', on ? 'hand' : 'point'); } catch {}
+};
+try { setHand(localStorage.getItem('cursor') === 'hand'); } catch {}
+addEventListener('keydown', (e) => {
+  if (e.code === 'F5') { e.preventDefault(); screenshot(); } // 再読み込みの代わりに撮影
+  if (e.code === 'KeyV' && !e.repeat) setHand(!cross.classList.contains('hand'));
+});
+
 // ---- 毎フレーム
 const hud = $('hud');
 const clock = new THREE.Clock();
@@ -123,4 +156,4 @@ renderer.setAnimationLoop(() => {
 });
 
 // 動作確認・ナビ生成用
-window.app = { THREE, scene, camera, renderer, collision, player, world, nav, residents, talk, setTime };
+window.app = { THREE, scene, camera, renderer, collision, player, world, nav, residents, talk, setTime, screenshot };
