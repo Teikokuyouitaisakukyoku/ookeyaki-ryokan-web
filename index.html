@@ -53,6 +53,11 @@
   #dialog .line { font-size: 22px; line-height: 1.6; color: #fff; text-shadow: 0 1px 3px #000; }
   #dialog .hint { display: none; margin-top: 8px; font-size: 12px; color: #b8ad98; }
   #dialog.asking .hint { display: flex; align-items: center; gap: 10px; }
+  #dialog.news { pointer-events: auto; }
+  #dialog .line a { color: #f0c36b; text-decoration: underline; text-underline-offset: 4px; }
+  #dialog .line a:hover { color: #ffd98a; }
+  #dialog .news-hint { display: none; margin-top: 8px; font-size: 12px; color: #b8ad98; }
+  #dialog.news .news-hint { display: block; }
   #dialog .timer { flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,.15); overflow: hidden; }
   #dialog .timer i { display: block; height: 100%; width: 100%; background: #f0c36b; }
   #cross { position: fixed; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px; border-radius: 50%;
@@ -64,7 +69,8 @@
 <div id="cross"></div>
 <div id="hud"></div>
 <div id="dialog"><div class="who"></div><div class="line"></div>
-  <div class="hint"><span><kbd>Space</kbd>／クリックで返事・頭をクリックすると…</span><span class="timer"><i></i></span></div></div>
+  <div class="hint"><span><kbd>Space</kbd>／クリックで返事・頭をクリックすると…</span><span class="timer"><i></i></span></div>
+  <div class="news-hint">リンクをクリック（<kbd>Enter</kbd>）で開く・画面をクリックで戻る</div></div>
 <div id="start"><div class="card">
   <h2>大欅旅館</h2>
   <div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移動　<kbd>Shift</kbd> 走る　マウス 視点　<kbd>Esc</kbd> カーソルを戻す</div>
