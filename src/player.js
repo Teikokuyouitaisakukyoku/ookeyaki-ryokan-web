@@ -16,6 +16,7 @@ export class Player {
     this.yaw = 0;
     this.feet = new THREE.Vector3();
     this.body = { vy: 0 };
+    this.touchMove = null; // スマホのスティック: { x, z }（-1〜1。z は - が前）
     this.onLockChange = () => {};
 
     addEventListener('keydown', (e) => {
@@ -59,10 +60,16 @@ export class Player {
     if (k.has('KeyS') || k.has('ArrowDown')) move.z += 1;
     if (k.has('KeyA') || k.has('ArrowLeft')) move.x -= 1;
     if (k.has('KeyD') || k.has('ArrowRight')) move.x += 1;
-    const run = k.has('ShiftLeft') || k.has('ShiftRight');
-    if (move.lengthSq() > 0) {
-      move.normalize().applyAxisAngle(UP, this.yaw).multiplyScalar((run ? BODY.run : BODY.walk) * dt);
+    let run = k.has('ShiftLeft') || k.has('ShiftRight');
+    let amount = 1;
+    if (this.touchMove) { // スティックは倒した量で速さが変わり、いっぱいに倒すと走る
+      move.x += this.touchMove.x; move.z += this.touchMove.z;
+      amount = Math.min(1, move.length());
+      run = run || amount > 0.95;
     }
+    if (move.lengthSq() > 0.0025) {
+      move.normalize().applyAxisAngle(UP, this.yaw).multiplyScalar((run ? BODY.run : BODY.walk * amount) * dt);
+    } else move.set(0, 0, 0);
     this.col.moveBody(this.feet, move, dt, this.body);
     this.sync();
   }

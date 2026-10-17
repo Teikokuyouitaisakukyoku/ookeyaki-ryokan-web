@@ -5,16 +5,17 @@ import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
 import { VRMLookAtQuaternionProxy } from '@pixiv/three-vrm-animation';
 import { VRMAnimationLoaderPlugin, createVRMAnimationClip } from '@pixiv/three-vrm-animation';
 import { MOTIONS } from './motions.js';
+import { MOBILE } from './device.js';
 
 // ビルド時に vite.config.js が埋め込む実ファイルサイズ（バイト）。圧縮配信でも % がずれないように使う
 const SIZES = __ASSET_SIZES__;
 
 export const FILES = {
-  stage: 'assets/stage/OokeyakiRyokan.web.glb', // npm run optimize-stage で元の .glb から作る軽量版
-  // npm run optimize-vrm で元の .vrm から作る軽量版（画像だけ WebP・最大 1024px）
-  kyokucho: 'assets/characters/kyokucho.web.vrm',
-  hachi: 'assets/characters/hachi.web.vrm',
-  shinkuro: 'assets/characters/shinkuro.web.vrm',
+  // npm run optimize-stage / optimize-vrm で元の素材から作る軽量版。PC 用は .web（画像 1024px）、スマホ用は .mobile（512px）
+  stage: `assets/stage/OokeyakiRyokan.${MOBILE ? 'mobile' : 'web'}.glb`,
+  kyokucho: `assets/characters/kyokucho.${MOBILE ? 'mobile' : 'web'}.vrm`,
+  hachi: `assets/characters/hachi.${MOBILE ? 'mobile' : 'web'}.vrm`,
+  shinkuro: `assets/characters/shinkuro.${MOBILE ? 'mobile' : 'web'}.vrm`,
 };
 
 const url = (p) => new URL(p, document.baseURI).href;
