@@ -118,8 +118,9 @@ class Resident {
     this.pose.play(null, { fade: 0.3 });
   }
 
-  wake() {
-    this.wokeNight = nightOf(now());
+  /** byPlayer: プレイヤーに起こされた（その夜はもう寝ない）。朝の起床は false */
+  wake(byPlayer = false) {
+    if (byPlayer) this.wokeNight = nightOf(now());
     this.mode = 'routine';
     this.state = 'waking';
     this.lieFrom = this.nodePos(this.bed.node);
@@ -161,7 +162,7 @@ class Resident {
     const same = dy > 0.3 && dy < 2.6; // 同じ階にいる
     this.dist = same ? Math.hypot(eye.x - pos.x, eye.z - pos.z) : Infinity;
     if (lying) { // 寝ている: 近くまで来られたら起きる
-      if (this.state === 'sleeping' && this.dist < WAKE_R) this.wake();
+      if (this.state === 'sleeping' && this.dist < WAKE_R) this.wake(true);
       this.talkable = false;
       return;
     }

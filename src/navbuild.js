@@ -8,7 +8,7 @@ import * as THREE from 'three';
 const FLOOR_RE = /(_Floor|_Stairs_Col|_Landings|_Trim|Site_Ground|Site_Garden|Site_Road|Site_Stairs_Col|_Col)$/; // _Trim: 敷居
 const CELL = 0.25;
 const RADIUS = 0.2;      // 壁からの余裕（プレイヤーと同じ。客室の襖の開口 0.62m を通れる幅）
-const HEADROOM = 1.75;
+const HEADROOM = 1.65;  // 身長 1.61m。客室の鴨居（床から 1.8m）の下を通れるように
 const MAX_STEP = 0.42;   // 上がり框(0.40)まで
 const DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]];
 
