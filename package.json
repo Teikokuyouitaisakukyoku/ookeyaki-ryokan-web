@@ -9,7 +9,9 @@
     "preview": "vite preview",
     "build-nav": "node scripts/build-nav.mjs",
     "optimize-vrm": "node scripts/optimize-vrm.mjs",
-    "optimize-stage": "gltf-transform resize assets/stage/OokeyakiRyokan.glb .stage-tmp.glb --width 1024 --height 1024 && gltf-transform webp .stage-tmp.glb .stage-tmp2.glb --quality 80 && gltf-transform meshopt .stage-tmp2.glb assets/stage/OokeyakiRyokan.web.glb --level medium && rm .stage-tmp.glb .stage-tmp2.glb"
+    "optimize-stage": "npm run optimize-stage:web && npm run optimize-stage:mobile",
+    "optimize-stage:web": "gltf-transform resize assets/stage/OokeyakiRyokan.glb .stage-tmp.glb --width 1024 --height 1024 && gltf-transform webp .stage-tmp.glb .stage-tmp2.glb --quality 80 && gltf-transform meshopt .stage-tmp2.glb assets/stage/OokeyakiRyokan.web.glb --level medium && rm .stage-tmp.glb .stage-tmp2.glb",
+    "optimize-stage:mobile": "gltf-transform resize assets/stage/OokeyakiRyokan.glb .stage-tmp.glb --width 512 --height 512 && gltf-transform webp .stage-tmp.glb .stage-tmp2.glb --quality 75 && gltf-transform meshopt .stage-tmp2.glb assets/stage/OokeyakiRyokan.mobile.glb --level medium && rm .stage-tmp.glb .stage-tmp2.glb"
   },
   "dependencies": {
     "@pixiv/three-vrm": "^3.5.5",

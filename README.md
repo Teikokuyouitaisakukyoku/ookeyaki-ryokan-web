@@ -10,14 +10,14 @@
 
 ## 動作環境
 
-| 項目 | 通常モード | VR モード |
-|---|---|---|
-| 端末 | Windows / Mac の PC（キーボードとマウスが必要） | Windows PC と、PC につないだ VR 機器 |
-| ブラウザ | Chrome / Edge / Firefox / Safari の最近の版 | Chrome または Edge |
-| VR 機器 | — | Quest（Link / Air Link 接続）、SteamVR 対応機器など |
-| 性能の目安 | メモリ 8GB 以上。GPU のメモリを約 600MB 使う | VR 対応の単体 GPU |
+| 項目 | 通常モード（PC） | 通常モード（スマホ） | VR モード |
+|---|---|---|---|
+| 端末 | Windows / Mac の PC（キーボードとマウス） | Android スマホ（タッチ操作） | Windows PC と、PC につないだ VR 機器 |
+| ブラウザ | Chrome / Edge / Firefox / Safari の最近の版 | Chrome | Chrome または Edge |
+| 性能の目安 | メモリ 8GB 以上。GPU のメモリを約 600MB 使う | 軽い素材（画像 512px）を使い、GPU のメモリは約 150MB | VR 対応の単体 GPU |
 
-- スマホ・タブレット、Quest 単体のブラウザには対応していません。
+- スマホは、指で操作する端末だと自動で判定して、軽い素材とタッチ操作に切り替えます（PC で確認するときは URL に `?mobile=1`）。動作を確かめたのは moto g53s 相当の画面サイズまでです。iPhone は未確認です。
+- Quest 単体のブラウザには対応していません。
 - VR モードは https のページ（または自分の PC 上の localhost）でだけ動きます。
 
 ## 遊び方
@@ -38,6 +38,17 @@
 
 - **会話**: 住人の正面まで近づくと話しかけてきます。3 秒以内に Space かクリックで返事をすると、雑談やお知らせ（作品のリンク）を話します。
 - **タッチ**: 手のカーソル（V）で住人をクリックすると、部位（頭・胸・お腹・足・腕・手）ごとに反応します。手・腕は、押したまま動かすと引っ張れます。
+
+### スマホ
+
+| 操作 | 内容 |
+|---|---|
+| 左下のスティック | 移動（いっぱいに倒すと走る） |
+| 画面をドラッグ | 視点 |
+| 住人をタップ | 触れる（部位ごとに反応） |
+| 手・腕を長押し | つかむ。そのまま視点を動かすか歩くと引っ張れる |
+| 画面をタップ | 話しかけられたときの返事 |
+| 右上の［撮影］［メニュー］ | 撮影（PNG で保存）・操作案内 |
 
 ### VR モード
 
@@ -82,8 +93,8 @@ npm run build   # 本番用のビルド（dist/ に出力）
 
 | コマンド | 内容 |
 |---|---|
-| `npm run optimize-stage` | 舞台 `assets/stage/OokeyakiRyokan.glb` から軽量版 `OokeyakiRyokan.web.glb` を作る |
-| `npm run optimize-vrm` | `assets/characters/*.vrm` から軽量版 `*.web.vrm` を作る（画像だけ WebP 化） |
+| `npm run optimize-stage` | 舞台 `assets/stage/OokeyakiRyokan.glb` から軽量版を作る（PC 用 `.web.glb`・スマホ用 `.mobile.glb`） |
+| `npm run optimize-vrm` | `assets/characters/*.vrm` から軽量版を作る（PC 用 `.web.vrm`・スマホ用 `.mobile.vrm`。画像だけ WebP 化） |
 | `npm run build-nav` | 住人の歩行データ `assets/stage/nav.json` を作り直す（舞台を変えたとき。数分かかる） |
 
 公開サイトに載るのは軽量版だけで、元の `.glb` / `.vrm` は配信物に含めません。

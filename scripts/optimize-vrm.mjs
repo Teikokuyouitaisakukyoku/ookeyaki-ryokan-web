@@ -1,11 +1,12 @@
 // VRM の画像だけを軽くする（表情・揺れもの・視線・MToon などの VRM 情報はそのまま）。
-// 使い方: npm run optimize-vrm   → assets/characters/*.vrm から *.web.vrm を作る
-//   テクスチャ: 最大 MAX px に縮小して WebP（EXT_texture_webp）。サムネイルは THUMB px
+// 使い方: npm run optimize-vrm   → assets/characters/*.vrm から *.web.vrm（PC 用）と *.mobile.vrm（スマホ用）を作る
+//   テクスチャ: 最大 MAX px（スマホ用は MOBILE_MAX px）に縮小して WebP（EXT_texture_webp）。サムネイルは THUMB px
 import fs from 'node:fs';
 import path from 'node:path';
 import sharp from 'sharp';
 
 const MAX = 1024;
+const MOBILE_MAX = 512;
 const THUMB = 256;
 const QUALITY = 85;
 const DIR = 'assets/characters';
@@ -28,7 +29,7 @@ function writeGlb(json, bin) {
   return Buffer.concat([head, chunk(j.length, 'JSON'), j, chunk(b.length, 'BIN\0'), b]);
 }
 
-async function optimize(file) {
+async function optimize(file, MAX, suffix) {
   const { json, bin } = readGlb(fs.readFileSync(file));
   const views = json.bufferViews.map((v) => bin.subarray(v.byteOffset || 0, (v.byteOffset || 0) + v.byteLength));
   const thumbIdx = json.extensions?.VRMC_vrm?.meta?.thumbnailImage;
@@ -64,9 +65,13 @@ async function optimize(file) {
     if (padLen) { parts.push(Buffer.alloc(padLen)); off += padLen; }
   });
   json.buffers = [{ byteLength: off }];
-  const out = file.replace(/\.vrm$/, '.web.vrm');
+  const out = file.replace(/\.vrm$/, `.${suffix}.vrm`);
   fs.writeFileSync(out, writeGlb(json, Buffer.concat(parts)));
   console.log(`${path.basename(file)} ${(fs.statSync(file).size / 1e6).toFixed(1)}MB → ${path.basename(out)} ${(fs.statSync(out).size / 1e6).toFixed(1)}MB`);
 }
 
-for (const f of fs.readdirSync(DIR)) if (/^[^.]+\.vrm$/.test(f)) await optimize(path.join(DIR, f));
+for (const f of fs.readdirSync(DIR)) {
+  if (!/^[^.]+\.vrm$/.test(f)) continue;
+  await optimize(path.join(DIR, f), MAX, 'web');
+  await optimize(path.join(DIR, f), MOBILE_MAX, 'mobile');
+}

@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>大欅旅館</title>
 <style>
   html, body { margin: 0; height: 100%; overflow: hidden; background: #1d1b18; color: #f1ece2;
@@ -76,6 +76,34 @@
   #vr-btn:hover:not(:disabled) { background: #3a3026; }
   #vr-btn:disabled { color: #8a7f6c; border-color: #5b4f3e; cursor: default; }
   body.vr #cross, body.vr #hud { display: none; }
+  /* ---- スマホ ---- */
+  .only-mobile { display: none; }
+  body.mobile .only-mobile { display: revert; }
+  body.mobile .only-pc { display: none !important; }
+  body.mobile { overscroll-behavior: none; -webkit-user-select: none; user-select: none; }
+  body.mobile canvas#view { touch-action: none; }
+  body.mobile #cross, body.mobile #hud, body.mobile #vr-btn { display: none; }
+  #stick { position: fixed; left: calc(24px + env(safe-area-inset-left)); bottom: calc(24px + env(safe-area-inset-bottom));
+    width: 120px; height: 120px; border-radius: 50%; z-index: 4; touch-action: none;
+    background: rgba(24,21,17,.35); border: 2px solid rgba(240,195,107,.45); }
+  #stick i { position: absolute; left: 35px; top: 35px; width: 50px; height: 50px; border-radius: 50%;
+    background: rgba(240,195,107,.55); pointer-events: none; }
+  #mbtns { position: fixed; right: calc(12px + env(safe-area-inset-right)); top: calc(12px + env(safe-area-inset-top));
+    z-index: 4; gap: 8px; }
+  body.mobile #mbtns { display: flex; }
+  #mbtns button { padding: 8px 14px; border-radius: 8px; border: 1px solid #c98a3d; background: rgba(24,21,17,.75);
+    color: #f0c36b; font: inherit; font-size: 14px; }
+  body.mobile #dialog { bottom: calc(160px + env(safe-area-inset-bottom)); }
+  @media (max-width: 640px), (max-height: 480px) {
+    #dialog { padding: 10px 16px 12px; min-width: 0; width: 92vw; }
+    #dialog .line { font-size: 17px; }
+    #start .card { padding: 16px 18px; margin: 0 12px; font-size: 13px; line-height: 1.8; }
+    #loading h1 { font-size: 18px; }
+  }
+  @media (max-height: 480px) { /* 横向き */
+    body.mobile #dialog { bottom: 12px; left: auto; right: 12px; transform: none; width: min(56vw, 520px); }
+    body.mobile #dialog.show { transform: none; }
+  }
   #toast { position: fixed; right: 16px; top: 16px; z-index: 6; padding: 8px 14px; border-radius: 6px; font-size: 13px;
     background: rgba(24,21,17,.85); border: 1px solid #5b4f3e; opacity: 0; transition: opacity .3s; pointer-events: none; }
   #toast.show { opacity: 1; }
@@ -93,19 +121,25 @@
   </svg>
 </div>
 <div id="toast"></div>
+<div id="stick" class="only-mobile"><i></i></div>
+<div id="mbtns" class="only-mobile"><button id="btn-shot">撮影</button><button id="btn-menu">メニュー</button></div>
 <button id="vr-btn" disabled>VR 確認中…</button>
 <div id="hud"></div>
 <div id="dialog"><div class="who"></div><div class="line"></div>
-  <div class="hint"><span><kbd>Space</kbd>／クリックで返事・頭をクリックすると…</span><span class="timer"><i></i></span></div>
-  <div class="news-hint">リンクをクリック（<kbd>Enter</kbd>）で開く・画面をクリックで戻る</div></div>
+  <div class="hint"><span class="only-pc"><kbd>Space</kbd>／クリックで返事・頭をクリックすると…</span><span class="only-mobile">画面をタップで返事・住人をタップすると…</span><span class="timer"><i></i></span></div>
+  <div class="news-hint"><span class="only-pc">リンクをクリック（<kbd>Enter</kbd>）で開く・画面をクリックで戻る</span><span class="only-mobile">リンクをタップで開く・画面をタップで閉じる</span></div></div>
 <div id="start"><div class="card">
   <h2>大欅旅館</h2>
-  <div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移動　<kbd>Shift</kbd> 走る　マウス 視点　<kbd>Esc</kbd> カーソルを戻す</div>
-  <div><kbd>1</kbd>〜<kbd>9</kbd>・<kbd>[</kbd><kbd>]</kbd> 出発点へ移動</div>
-  <div><kbd>F5</kbd> 撮影（スクリーンショットを保存）　<kbd>V</kbd> カーソルを点／手に切り替え</div>
-  <div>手のカーソルで住人をクリック: 触れる（手・腕は押したまま動かすと引っ張る）</div>
-  <div>右下の［VR開始］: VR モード（PC につないだ VR 機器）</div>
-  <div class="go">クリックで開始</div>
+  <div class="only-mobile">左下のスティックで移動（いっぱいに倒すと走る）・画面をドラッグで視点</div>
+  <div class="only-mobile">住人をタップ: 触れる（手・腕は長押ししたまま動かすと引っ張る）</div>
+  <div class="only-mobile">話しかけられたら画面をタップで返事・右上のボタンで撮影</div>
+  <div class="only-mobile go">タップで開始</div>
+  <div class="only-pc"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移動　<kbd>Shift</kbd> 走る　マウス 視点　<kbd>Esc</kbd> カーソルを戻す</div>
+  <div class="only-pc"><kbd>1</kbd>〜<kbd>9</kbd>・<kbd>[</kbd><kbd>]</kbd> 出発点へ移動</div>
+  <div class="only-pc"><kbd>F5</kbd> 撮影（スクリーンショットを保存）　<kbd>V</kbd> カーソルを点／手に切り替え</div>
+  <div class="only-pc">手のカーソルで住人をクリック: 触れる（手・腕は押したまま動かすと引っ張る）</div>
+  <div class="only-pc">右下の［VR開始］: VR モード（PC につないだ VR 機器）</div>
+  <div class="go only-pc">クリックで開始</div>
   <div class="credit">© 帝国妖異対策局（キャラクターモデル・舞台・モーション）　<a href="THIRD_PARTY_NOTICES.md" target="_blank" rel="noopener">ライセンス表記</a></div>
 </div></div>
 <div id="loading">

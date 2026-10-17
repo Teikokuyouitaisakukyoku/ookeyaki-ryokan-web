@@ -102,7 +102,8 @@ export function pickRay(vrm, ray, maxT) {
   let best = null;
   for (const s of bodyShapes(vrm)) {
     const onRay = v();
-    const d2 = s.a.equals(s.b) ? ray.distanceSqToPoint(s.a) : ray.distanceSqToSegment(s.a, s.b, onRay);
+    // 視線が中心線をちょうど通ると、丸め誤差でわずかに負になる（そのままだと平方根が NaN になる）
+    const d2 = Math.max(0, s.a.equals(s.b) ? ray.distanceSqToPoint(s.a) : ray.distanceSqToSegment(s.a, s.b, onRay));
     if (d2 > s.r * s.r) continue;
     if (s.a.equals(s.b)) ray.closestPointToPoint(s.a, onRay);
     const t = onRay.distanceTo(ray.origin) - Math.sqrt(s.r * s.r - d2);

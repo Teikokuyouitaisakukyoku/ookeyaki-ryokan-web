@@ -9,19 +9,23 @@ import { Residents } from './npc.js';
 import { Conversation } from './talk.js';
 import { VR } from './vr.js';
 import { pickRay, GRAB } from './touch.js';
+import { MOBILE } from './device.js';
+import { TouchControls } from './mobile.js';
 
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
 
 // ---- 描画
 const canvas = $('view');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+// スマホは描画解像度を下げ、アンチエイリアスを切る（GPU の負荷とメモリを減らす）
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: !MOBILE, powerPreference: 'high-performance' });
+renderer.setPixelRatio(MOBILE ? Math.min(devicePixelRatio, 1) : Math.min(devicePixelRatio, 2));
+if (MOBILE) document.body.classList.add('mobile');
 renderer.setSize(innerWidth, innerHeight, false);
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xa9c6dc);
-const camera = new THREE.PerspectiveCamera(72, innerWidth / innerHeight, 0.05, 400);
+const camera = new THREE.PerspectiveCamera(72, innerWidth / innerHeight, 0.05, MOBILE ? 90 : 400); // スマホは遠くを描かない
 scene.add(new THREE.HemisphereLight(0xe4eef7, 0xd8cdb8, 1.5));
 const sun = new THREE.DirectionalLight(0xfff1dc, 2.2);
 sun.position.set(-18, 32, 22);
@@ -85,7 +89,7 @@ player.onLockChange = (locked) => {
   // お知らせ中はリンクを押せるよう、操作案内を出さずにカーソルだけ解放する
   startEl.classList.toggle('show', !locked && talk?.state !== 'news');
 };
-startEl.addEventListener('click', () => player.lock());
+startEl.addEventListener('click', () => (MOBILE ? startEl.classList.remove('show') : player.lock()));
 startEl.querySelector('.credit a').addEventListener('click', (e) => e.stopPropagation()); // ライセンス表記は別タブで開くだけ
 canvas.addEventListener('click', () => { if (!player.locked) player.lock(); });
 
@@ -96,7 +100,7 @@ startEl.classList.add('show');
 
 // ---- 会話（正面まで来た住人と話す。スペース／クリックで返事）
 const talk = residents ? new Conversation($('dialog'), residents, camera) : null;
-if (talk) talk.onEnd = () => startEl.classList.toggle('show', !player.locked && !vr?.active);
+if (talk) talk.onEnd = () => startEl.classList.toggle('show', !MOBILE && !player.locked && !vr?.active);
 let vr = null;
 if (residents) {
   vr = new VR({ renderer, scene, camera, player, collision, residents, talk, button: $('vr-btn') });
@@ -111,15 +115,22 @@ addEventListener('keydown', (e) => {
 // ---- タッチ（通常モード: 手のカーソルで住人をクリック。手・腕は押したまま動かすと引っ張る）
 const REACH = 2.5; // 手が届く距離
 const ray = new THREE.Ray();
-let press = null;  // 手・腕を押している: { r, part, t, at（押した点）, dragging }
-function aimRay() {
-  camera.getWorldPosition(ray.origin);
-  camera.getWorldDirection(ray.direction);
+let press = null;  // 手・腕を押している: { r, part, t, at（押した点）, dragging, sx, sy（スマホは指の位置） }
+const raycaster = new THREE.Raycaster();
+/** 照準（画面中央）か、画面の点 (sx, sy) を通る視線 */
+function aimRay(sx, sy) {
+  if (sx === undefined) {
+    camera.getWorldPosition(ray.origin);
+    camera.getWorldDirection(ray.direction);
+  } else {
+    raycaster.setFromCamera(new THREE.Vector2(sx / innerWidth * 2 - 1, -(sy / innerHeight) * 2 + 1), camera);
+    ray.copy(raycaster.ray);
+  }
   return ray;
 }
-function pickResident() {
+function pickResident(sx, sy) {
   if (!residents) return null;
-  aimRay();
+  aimRay(sx, sy);
   let best = null;
   for (const r of residents.list) {
     if (r.root.position.distanceTo(ray.origin) > REACH + 1.5) continue;
@@ -151,12 +162,44 @@ function pressEnd() {
 /** 押している間: 照準の先（押したときの距離）へ住人を引っ張る */
 function updatePress() {
   if (!press) return;
-  const target = aimRay().at(press.t, new THREE.Vector3());
+  const target = aimRay(press.sx, press.sy).at(press.t, new THREE.Vector3());
   if (!press.dragging && Math.hypot(target.x - press.at.x, target.z - press.at.z) > 0.15) {
     if (press.r.beginDrag(GRAB[press.part])) { press.dragging = true; talk?.touch(press.r, 'pull'); }
     else { press = null; return; }
   }
   if (press.dragging) press.r.dragTarget.copy(target);
+}
+
+// ---- スマホ: タッチ操作と画面のボタン
+if (MOBILE) {
+  new TouchControls({
+    surface: canvas,
+    stick: $('stick'),
+    player,
+    // タップ: 住人に触れる。住人以外は返事（お知らせ中なら閉じる）
+    onTap(x, y) {
+      const hit = pickResident(x, y);
+      if (hit) { talk?.touch(hit.r, hit.part); return; }
+      if (talk?.state === 'news') talk.relocked();
+      else talk?.input('key');
+    },
+    // 長押し: 手・腕なら引っ張る。ほかの部位なら触れる
+    onHoldStart(x, y) {
+      const hit = pickResident(x, y);
+      if (!hit) return false;
+      if (GRAB[hit.part] && hit.r.beginDrag(GRAB[hit.part])) {
+        press = { ...hit, at: ray.at(hit.t, new THREE.Vector3()), dragging: true, sx: x, sy: y };
+        talk?.touch(hit.r, 'pull');
+        return true;
+      }
+      talk?.touch(hit.r, hit.part);
+      return false;
+    },
+    onHoldMove(x, y) { if (press) { press.sx = x; press.sy = y; } },
+    onHoldEnd() { if (press) { press.r.endDrag(); press = null; } },
+  });
+  $('btn-shot').addEventListener('click', () => screenshot());
+  $('btn-menu').addEventListener('click', () => startEl.classList.add('show'));
 }
 
 // ---- 撮影（F5）・カーソル切り替え（V）
