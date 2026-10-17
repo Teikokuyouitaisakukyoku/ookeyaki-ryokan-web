@@ -20,6 +20,8 @@ export const MOTIONS = {
   bowLight: `${B}/日常モーション/15_お辞儀/15_お辞儀_Bow_Light.vrma`,
   tilt: `${B}/日常モーション/18_首をかしげる/18_首をかしげる_Tilt.vrma`,
   smallWave: `${B}/仕草モーション/G07_小さく手を振る/G07_小さく手を振る_SmallWave.vrma`,
+  shy: `${B}/日常モーション/26_照れる/26_照れる_Shy.vrma`,
+  angry: `${B}/日常モーション/28_怒る/28_怒る_Angry.vrma`,
 };
 
 /**
@@ -27,6 +29,7 @@ export const MOTIONS = {
  * idle: 立ち止まったときの待機。毎回この中から選ぶ
  * gesture: 待機中にときどき入る仕草（1 回再生）
  * greet: 話しかけられたときの 1 回目の反応
+ * pat: 会話中に頭をクリックされたときの反応
  * chairIdle: 椅子・ベンチ・スツールに座っている間（床座りは手続きの正座）
  */
 export const STYLE = {
@@ -35,6 +38,7 @@ export const STYLE = {
     idle: ['proc', 'idleNormal', 'idleGenki'],
     gesture: ['watch', 'stretch', 'neckRoll'],
     greet: 'tilt',
+    pat: 'angry',
     chairIdle: ['sitIdle', 'proc'],
   },
   hachi: {
@@ -42,6 +46,7 @@ export const STYLE = {
     idle: ['proc', 'idleFormal'],
     gesture: ['hairEar', 'watch'],
     greet: 'bowLight',
+    pat: 'tilt',
     chairIdle: ['sitIdle'],
   },
   shinkuro: {
@@ -49,6 +54,7 @@ export const STYLE = {
     idle: ['proc', 'idleFidget', 'idleBangs'],
     gesture: ['yawn', 'hairEar', 'stretch'],
     greet: 'smallWave',
+    pat: 'shy',
     chairIdle: ['proc', 'sitIdle'],
   },
 };

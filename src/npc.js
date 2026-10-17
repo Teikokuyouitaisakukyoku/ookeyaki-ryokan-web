@@ -12,10 +12,14 @@ const NOTICE_R = 3.0;         // この距離まで近づくと立ち止まっ�
 const NOTICE_OUT = 3.6;       // 離れたら元の動きに戻る距離
 const TALK_R = 1.4;           // 正面のこの距離で会話
 export const TALK = {
-  kyokucho: { name: '局長', line: 'どうしたの？' },
-  hachi: { name: 'Hachi', line: 'どうされましたか？' },
-  shinkuro: { name: '真九郎', line: 'どうしたのですん？' },
+  // line: 話しかけたとき / pat: 会話中に頭をクリックしたとき
+  kyokucho: { name: '局長', line: 'どうしたの？', pat: 'なにすんのよ！ セクハラよ！ セクハラ！' },
+  hachi: { name: 'Hachi', line: 'どうされましたか？', pat: 'えっと……どうも、ありがとうございます？' },
+  shinkuro: { name: '真九郎', line: 'どうしたのですん？', pat: 'えへへ、くすぐったいですん……' },
 };
+export { NOTICE_OUT };
+
+const _h1 = new THREE.Vector3(), _h2 = new THREE.Vector3(), _h3 = new THREE.Vector3();
 
 function angleLerp(a, b, t) {
   let d = ((b - a + Math.PI) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2) - Math.PI;
@@ -48,6 +52,8 @@ class Resident {
     this.attending = false; // プレイヤーに気づいて見ている
     this.talkable = false;  // 正面で話せる距離にいる
     this.dist = Infinity;
+    this.ignore = false;     // 会話の後は、いったん離れるまでプレイヤーに反応しない
+    this.suppressed = false; // ほかの住人が会話中は反応しない
   }
 
   /** プレイヤー（eye = 目の位置）との距離から、気づく・話せるを決める */
@@ -58,8 +64,10 @@ class Resident {
     this.dist = same ? Math.hypot(eye.x - pos.x, eye.z - pos.z) : Infinity;
     // 座る・立つの途中は気づいても動きを止めない
     const busy = this.state === 'sitting' || this.state === 'standing';
-    if (!this.attending && this.dist < NOTICE_R && !busy) this.startAttend();
-    else if (this.attending && this.dist > NOTICE_OUT) this.endAttend();
+    if (this.ignore && this.dist > NOTICE_OUT) this.ignore = false;
+    const can = !this.ignore && !this.suppressed;
+    if (!this.attending && this.dist < NOTICE_R && !busy && can) this.startAttend();
+    else if (this.attending && (this.dist > NOTICE_OUT || !can)) this.endAttend();
     // 正面: キャラの向きから ±50° 以内
     const toward = Math.atan2(eye.x - pos.x, eye.z - pos.z);
     const off = Math.abs(angleLerp(0, toward - this.yaw, 1));
@@ -73,6 +81,30 @@ class Resident {
       // 立っていれば、挨拶の仕草を 1 回してから待機
       this.pose.play(this.style.greet, { once: true, fade: 0.3, onDone: () => this.attending && this.pose.play(pick(this.style.idle), { fade: 0.5 }) });
     }
+  }
+
+  /** 会話が終わった・返事がなかった: 元の動きに戻り、プレイヤーが離れるまで反応しない */
+  loseInterest() {
+    this.ignore = true;
+    this.talkable = false;
+    if (this.attending) this.endAttend();
+  }
+
+  /** 会話中に頭をなでられた */
+  reactPat() {
+    this.pose.play(this.style.pat, { once: true, fade: 0.25, onDone: () => this.attending && this.pose.play(pick(this.style.idle), { fade: 0.5 }) });
+  }
+
+  /** 視線（ray）がこの住人の頭か体に当たるか: 'head' | 'body' | null */
+  hitTest(ray) {
+    const h = this.vrm.humanoid;
+    const head = h.getRawBoneNode('head').getWorldPosition(_h1);
+    _h1.y += 0.08; // 頭ボーンは首の付け根。頭の中心へ上げる
+    if (ray.distanceSqToPoint(head) < 0.15 ** 2) return 'head';
+    const hips = h.getRawBoneNode('hips').getWorldPosition(_h2);
+    const neck = h.getRawBoneNode('neck').getWorldPosition(_h3);
+    if (ray.distanceSqToSegment(hips, neck) < 0.24 ** 2) return 'body';
+    return null;
   }
 
   endAttend() {
@@ -262,6 +294,10 @@ export class Residents {
       this.list.push(r);
     }
   }
+
+  /** r と会話を始めた: ほかの住人は通常の動きに戻る */
+  focus(r) { for (const q of this.list) if (q !== r) q.suppressed = true; }
+  unfocus() { for (const q of this.list) q.suppressed = false; }
 
   /** eye = プレイヤーの目の位置。いちばん近い「話せる」住人を返す */
   update(dt, eye, camera) {
