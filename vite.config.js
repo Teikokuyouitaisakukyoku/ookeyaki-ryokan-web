@@ -33,6 +33,8 @@ function serveAssets() {
         recursive: true,
         filter: (src) => !/^(OokeyakiRyokan\.glb|[^.]+\.vrm)$/.test(path.basename(src)),
       });
+      // ライセンス表記も配信物に載せる
+      for (const f of ['LICENSE', 'THIRD_PARTY_NOTICES.md']) fs.copyFileSync(f, path.resolve('dist', f));
     },
   };
 }

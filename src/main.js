@@ -86,6 +86,7 @@ player.onLockChange = (locked) => {
   startEl.classList.toggle('show', !locked && talk?.state !== 'news');
 };
 startEl.addEventListener('click', () => player.lock());
+startEl.querySelector('.credit a').addEventListener('click', (e) => e.stopPropagation()); // ライセンス表記は別タブで開くだけ
 canvas.addEventListener('click', () => { if (!player.locked) player.lock(); });
 
 showProgress(1, '');
