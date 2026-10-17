@@ -1,6 +1,9 @@
 import * as THREE from 'three';
 import { TALK, NOTICE_OUT } from './npc.js';
 import { NEWS } from './news.js';
+import { TOUCH } from './touch.js';
+import { LINES, NEWS_RATE, timeSlot, pickOne } from './lines.js';
+import { now } from './schedule.js';
 
 const ANSWER_TIME = 3;   // 話しかけられてから、返事を待つ秒数
 const AFTER_TIME = 2.6;  // 返事・反応のせりふを見せる秒数
@@ -30,6 +33,7 @@ export class Conversation {
     this.t = 0;
     this.ray = new THREE.Ray();
     this.onEnd = () => {};
+    this.onShow = () => {}; // VR のパネルへ同じ内容を出す: ({ name, text, isPlayer, hint }) か null
   }
 
   show(name, text, isPlayer = false, link = null) {
@@ -49,6 +53,7 @@ export class Conversation {
       this.line.append(`「${text.slice(0, at)}`, a, `${text.slice(at + link.label.length)}」`);
     }
     this.dialog.classList.add('show');
+    this.onShow({ name, text, isPlayer, hint: this.state === 'ask' ? 'ask' : link ? 'news' : null });
   }
 
   /** candidate = 正面で話せる住人（いなければ null） */
@@ -73,8 +78,17 @@ export class Conversation {
     this.state = 'ask';
     this.t = 0;
     this.residents.focus(r);
-    this.show(TALK[r.name].name, TALK[r.name].line);
+    this.show(TALK[r.name].name, pickOne(LINES[r.name].greet[timeSlot(now())]));
     this.dialog.classList.add('asking');
+  }
+
+  /** 住人に触れた（part）・引っ張り始めた（part = 'pull'）: 反応のせりふを出す */
+  touch(r, part) {
+    const line = part === 'pull' ? TOUCH[r.name].pull.line : r.reactTouch(part);
+    if (!line) return;
+    if (this.state !== 'none' && this.r !== r) this.end();
+    if (this.state === 'none') { this.r = r; this.residents.focus(r); }
+    this.after(TALK[r.name].name, line);
   }
 
   /** スペース（kind = 'key'）か、照準でのクリック（kind = 'click'） */
@@ -87,15 +101,18 @@ export class Conversation {
       if (hit === 'head') { this.after(TALK[this.r.name].name, TALK[this.r.name].pat); this.r.reactPat(); return; }
       if (hit === 'body') return; // 住人の体のクリックは返事にしない
     }
+    // 返事のあとは、お知らせか雑談
     const news = NEWS?.lines?.[this.r.name];
-    this.after(PLAYER.name, PLAYER.reply, true, news ? () => this.news(news) : null);
+    const name = TALK[this.r.name].name;
+    const next = news && Math.random() < NEWS_RATE ? () => this.news(news) : () => this.after(name, pickOne(LINES[this.r.name].chat));
+    this.after(PLAYER.name, PLAYER.reply, true, next);
   }
 
   after(name, text, isPlayer, next = null) {
     this.state = 'after';
     this.t = next ? REPLY_TIME : AFTER_TIME;
     this.next = next;
-    this.dialog.classList.remove('asking');
+    this.dialog.classList.remove('asking', 'news');
     this.show(name, text, isPlayer);
   }
 
@@ -122,7 +139,9 @@ export class Conversation {
   }
 
   end() {
+    if (this.state === 'none') return;
     this.next = null;
+    this.onShow(null);
     this.dialog.classList.remove('show', 'asking', 'news');
     this.r.loseInterest();
     this.residents.unfocus();

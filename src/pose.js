@@ -58,6 +58,8 @@ export class Pose {
     this.hipsY = this.restHipsY; // 座っているとき目標とする腰の高さ（ルートからの m）
     this.lookYaw = 0;    // 首・頭で向ける角度（体に対して。+ で左）
     this.lookPitch = 0;  // + で下を向く
+    this.reach = null;   // 'left' | 'right': 引っ張られて、その腕を前へ伸ばす
+    this.reachW = 0;
 
     // VRMA
     this.clips = clips;
@@ -157,6 +159,14 @@ export class Pose {
       rightLowerArm: [0, 0.25 + 0.2 * w * Math.max(0, -s), 0],
       leftHand: [0, 0, 0], rightHand: [0, 0, 0],
     };
+    // 引っ張られている腕を前へ伸ばす（+X が左腕。Y 回転で前へ向ける）
+    this.reachW += ((this.reach ? 1 : 0) - this.reachW) * Math.min(1, dt * 8);
+    if (this.reachW > 0.01) {
+      const k2 = this.reachW, side = this.reach || this._lastReach;
+      if (side === 'left') { stand.leftUpperArm = [0, -1.4 * k2, -1.2 * (1 - k2) - 0.15 * k2]; stand.leftLowerArm = [0, -0.25 * (1 - k2), 0]; }
+      else { stand.rightUpperArm = [0, 1.4 * k2, 1.2 * (1 - k2) + 0.15 * k2]; stand.rightLowerArm = [0, 0.25 * (1 - k2), 0]; }
+    }
+    if (this.reach) this._lastReach = this.reach;
     for (const n of BONES) {
       const a = stand[n] || [0, 0, 0];
       const b = sit[n];
