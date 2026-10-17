@@ -2,12 +2,12 @@ import * as THREE from 'three';
 
 /**
  * 舞台の当たり判定から歩行グラフを作る（開発用・ブラウザ内で実行 → scripts/build-nav.mjs が nav.json に保存）。
- * 床とみなす面は _Floor / _Stairs_Col / _Landings / Site_Ground などの名前のメッシュだけ。
+ * 床とみなす面は _Floor / _Stairs_Col / _Landings / _Trim（敷居）/ Site_Ground などの名前のメッシュだけ。
  * 家具の天板や屋根の上は床にならない。
  */
-const FLOOR_RE = /(_Floor|_Stairs_Col|_Landings|Site_Ground|Site_Garden|Site_Road|Site_Stairs_Col|_Col)$/;
+const FLOOR_RE = /(_Floor|_Stairs_Col|_Landings|_Trim|Site_Ground|Site_Garden|Site_Road|Site_Stairs_Col|_Col)$/; // _Trim: 敷居
 const CELL = 0.25;
-const RADIUS = 0.24;     // 壁からの余裕
+const RADIUS = 0.2;      // 壁からの余裕（プレイヤーと同じ。客室の襖の開口 0.62m を通れる幅）
 const HEADROOM = 1.75;
 const MAX_STEP = 0.42;   // 上がり框(0.40)まで
 const DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]];

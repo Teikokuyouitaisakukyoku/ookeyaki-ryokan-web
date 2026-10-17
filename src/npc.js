@@ -2,12 +2,15 @@ import * as THREE from 'three';
 import { Pose } from './pose.js';
 import { ROUTES } from './routes.js';
 import { STYLE } from './motions.js';
+import { SCHEDULE, BEDS, now, inHours, nightOf } from './schedule.js';
 
 const WALK_SPEED = 1.15;
 const TURN_RATE = 6;          // rad/s
 const SIT_TIME = 0.9;         // 座る・立つの遷移秒
 const rand = ([a, b]) => a + Math.random() * (b - a);
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
+const LIE_TIME = 1.8;         // 横になる・起き上がる秒
+const WAKE_R = 1.8;           // 寝ている住人がこの距離まで近づかれると起きる
 const NOTICE_R = 3.0;         // この距離まで近づくと立ち止まってこちらを見る
 const NOTICE_OUT = 3.6;       // 離れたら元の動きに戻る距離
 const TALK_R = 1.4;           // 正面のこの距離で会話
@@ -54,14 +57,114 @@ class Resident {
     this.dist = Infinity;
     this.ignore = false;     // 会話の後は、いったん離れるまでプレイヤーに反応しない
     this.suppressed = false; // ほかの住人が会話中は反応しない
+    // 時間割
+    this.sched = SCHEDULE[name] || null;
+    this.mode = 'routine';   // routine | sleep | room
+    this.wokeNight = null;   // 起こされた夜（その夜はもう寝ない）
+    this.root.rotation.order = 'YXZ'; // 向き → 傾き（横になる）の順
+    if (this.sched?.bed) this.setupBed(BEDS[this.sched.bed]);
+  }
+
+  // ---- 時間割
+  wantMode(d) {
+    const s = this.sched;
+    if (!s || !inHours(d, s.from, s.to)) return 'routine';
+    if (s.mode === 'sleep' && this.wokeNight === nightOf(d)) return 'routine';
+    return s.mode;
+  }
+
+  /** 時刻で行動を切り替える。今の動作（座る途中など）は区切りまで待つ */
+  checkSchedule(d) {
+    const want = this.wantMode(d);
+    if (want === this.mode) return;
+    this.mode = want;
+    if (this.state === 'idle') this.timer = 0;
+    else if (this.state === 'walk') this.nextStep();
+    else if (this.state === 'sit-stay') this.timer = 0;
+    else if (this.state === 'sleeping') this.wake();
+  }
+
+  setupBed(b) {
+    const [cx, cy, cz] = b.center, [hx, hz] = b.head;
+    this.bed = {
+      center: new THREE.Vector3(cx, cy, cz),
+      // 足元（体の原点）。頭が枕側に来るよう、中心から足側へ 0.5m
+      root: new THREE.Vector3(cx - hx * 0.5, cy + 0.12, cz - hz * 0.5),
+      yaw: Math.atan2(-hx, -hz), // 横になると体の -Z（後ろ）方向に頭が来る
+      node: this.world.nav.nearest(cx - hx * 0.9, cy - 0.19, cz - hz * 0.9),
+    };
+  }
+
+  /** 読み込んだ時点で就寝中: 布団の上に寝かせて置く */
+  sleepNow() {
+    this.node = this.bed.node;
+    this.lieFrom = this.nodePos(this.bed.node);
+    this.lieYawFrom = this.bed.yaw;
+    this.lieT = 1;
+    this.applyLie();
+    this.state = 'sleeping';
+    this.setBlink(1);
+  }
+
+  nodePos(i) { const n = this.world.nav.nodes[i]; return new THREE.Vector3(n.x, n.y, n.z); }
+
+  setBlink(v) { this.vrm.expressionManager?.setValue('blink', v); }
+
+  beginLie() {
+    this.state = 'lying';
+    this.lieT = 0;
+    this.lieFrom = this.root.position.clone();
+    this.lieYawFrom = this.yaw;
+    this.pose.play(null, { fade: 0.3 });
+  }
+
+  wake() {
+    this.wokeNight = nightOf(now());
+    this.mode = 'routine';
+    this.state = 'waking';
+    this.lieFrom = this.nodePos(this.bed.node);
+    this.lieYawFrom = this.bed.yaw;
+    this.setBlink(0);
+  }
+
+  /** lieT: 0 = 立っている、1 = 布団に横になっている。途中は床に座ってから後ろへ倒れる */
+  applyLie() {
+    const t = this.lieT, e = t * t * (3 - 2 * t);
+    const pos = this.root.position;
+    pos.lerpVectors(this.lieFrom, this.bed.root, e);
+    this.yaw = angleLerp(this.lieYawFrom, this.bed.yaw, Math.min(1, e * 1.6));
+    const back = THREE.MathUtils.clamp((t - 0.35) / 0.65, 0, 1);
+    this.root.rotation.x = -Math.PI / 2 * back * back * (3 - 2 * back);
+    const p = this.pose;
+    p.sitKind = 'floor';
+    p.hipsY = 0.1;
+    p.sit = Math.sin(Math.PI * Math.min(1, t * 1.15)) * 0.95; // 途中で膝を曲げて座り、寝るときは脚を伸ばす
+    p.walk = 0;
+  }
+
+  updateLie(dt) {
+    if (this.state === 'lying') {
+      this.lieT = Math.min(1, this.lieT + dt / LIE_TIME);
+      if (this.lieT >= 1) { this.state = 'sleeping'; this.setBlink(1); }
+    } else if (this.state === 'waking') {
+      this.lieT = Math.max(0, this.lieT - dt / LIE_TIME);
+      if (this.lieT <= 0) { this.root.rotation.x = 0; this.pose.sit = 0; this.state = 'idle'; this.timer = 0.01; this.node = this.bed.node; return; }
+    }
+    this.applyLie();
   }
 
   /** プレイヤー（eye = 目の位置）との距離から、気づく・話せるを決める */
   sense(eye) {
-    const pos = this.root.position;
+    const lying = this.state === 'sleeping' || this.state === 'lying' || this.state === 'waking';
+    const pos = lying ? this.bed.center : this.root.position;
     const dy = eye.y - pos.y;
     const same = dy > 0.3 && dy < 2.6; // 同じ階にいる
     this.dist = same ? Math.hypot(eye.x - pos.x, eye.z - pos.z) : Infinity;
+    if (lying) { // 寝ている: 近くまで来られたら起きる
+      if (this.state === 'sleeping' && this.dist < WAKE_R) this.wake();
+      this.talkable = false;
+      return;
+    }
     // 座る・立つの途中は気づいても動きを止めない
     const busy = this.state === 'sitting' || this.state === 'standing';
     if (this.ignore && this.dist > NOTICE_OUT) this.ignore = false;
@@ -147,6 +250,8 @@ class Resident {
   }
 
   nextStep() {
+    if (this.mode === 'sleep') return this.go({ bed: true });
+    if (this.mode === 'room') return this.go({ seat: this.sched.seat, stay: 'forever' });
     this.step = (this.step + 1) % this.script.length;
     const st = this.script[this.step];
     if (st.wait) {
@@ -155,12 +260,18 @@ class Resident {
       this.startIdle();
       return;
     }
-    const { node, seat } = this.resolve(st);
+    this.go(st);
+  }
+
+  /** st の場所（席・出発点・布団）まで歩き出す */
+  go(st) {
+    const { node, seat } = st.bed ? { node: this.bed.node, seat: null } : this.resolve(st);
     const path = this.world.nav.path(this.node, node);
     if (!path) { console.warn(`${this.name}: 経路なし → ${JSON.stringify(st)}`); this.state = 'idle'; this.timer = 1; return; }
     this.path = path;
     this.pi = 1;
     this.seat = seat;
+    this.toBed = !!st.bed;
     this.stay = st.stay;
     this.state = 'walk';
     this.pose.play(this.style.walk, { timeScale: this.walkScale, fade: 0.35 });
@@ -222,11 +333,14 @@ class Resident {
       }
       p.speed = WALK_SPEED;
       if (this.pi >= this.path.length) {
-        if (this.seat) this.beginSit();
+        if (this.toBed) this.beginLie();
+        else if (this.seat) this.beginSit();
         else { this.state = 'idle'; this.timer = 0.01; this.nextStep(); }
       }
     } else if (this.state === 'sitting' || this.state === 'sit-stay' || this.state === 'standing') {
       this.updateSeat(dt);
+    } else if (this.state === 'lying' || this.state === 'sleeping' || this.state === 'waking') {
+      this.updateLie(dt);
     }
     if (this.state !== 'walk') p.speed = 0;
     this.root.rotation.y = this.yaw;
@@ -248,7 +362,7 @@ class Resident {
     this.pose.play(null, { fade: 0.3 }); // 座る動きは手続きで
     // 腰の高さ（ルートから）: 座面 + 尻の厚み
     this.pose.hipsY = s.position[1] - this.seatFloorY + (floorKind ? 0.08 : 0.03);
-    this.sitHold = rand(this.stay || [10, 20]);
+    this.sitHold = this.stay === 'forever' ? Infinity : rand(this.stay || [10, 20]);
   }
 
   updateSeat(dt) {
@@ -287,9 +401,14 @@ export class Residents {
     this.list = [];
     for (const [name, vrm] of Object.entries(vrms)) {
       const r = new Resident(name, vrm, { nav, seats, spawns }, clips[name] || {});
-      const start = r.resolve(ROUTES[name].find((s) => s.at || s.seat));
-      r.place(start.node);
-      r.nextStep();
+      // 読み込んだ時刻の時間割で置く: 就寝中なら布団の上、自室待機なら自室の席、ほかは道順の最初の場所
+      r.mode = r.wantMode(now());
+      if (r.mode === 'sleep') r.sleepNow();
+      else {
+        const first = r.mode === 'room' ? { seat: r.sched.seat } : ROUTES[name].find((s) => s.at || s.seat);
+        r.place(r.resolve(first).node);
+        r.nextStep();
+      }
       scene.add(vrm.scene);
       this.list.push(r);
     }
@@ -302,7 +421,9 @@ export class Residents {
   /** eye = プレイヤーの目の位置。いちばん近い「話せる」住人を返す */
   update(dt, eye, camera) {
     let talk = null;
+    const d = now();
     for (const r of this.list) {
+      r.checkSchedule(d);
       r.update(dt, eye, camera);
       if (r.talkable && (!talk || r.dist < talk.dist)) talk = r;
     }

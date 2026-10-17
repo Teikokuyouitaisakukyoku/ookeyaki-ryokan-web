@@ -42,6 +42,14 @@ export class Collision {
     }
   }
 
+  /** 当たり判定に入れる・外す（夜だけ片付ける家具など） */
+  setActive(meshes, on) {
+    const set = new Set(meshes);
+    this.colliders = this.colliders.filter((o) => !set.has(o));
+    if (on) this.colliders.push(...meshes.filter((o) => this.spheres.has(o)));
+    this.nearAt = null;
+  }
+
   nearColliders(p) {
     if (this.nearAt && Math.hypot(p.x - this.nearAt.x, p.z - this.nearAt.z) < 0.5) return this.near;
     this.nearAt = p.clone();

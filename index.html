@@ -30,6 +30,8 @@
   #bar i { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, #c98a3d, #f0c36b); transition: width .15s; }
   #pct { font-size: 28px; font-variant-numeric: tabular-nums; letter-spacing: .08em; }
   #msg { font-size: 13px; color: #b8ad98; min-height: 1.4em; }
+  #org { position: absolute; right: 24px; bottom: 20px; font-size: 15px; letter-spacing: .3em; color: #c9b68f;
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", serif; opacity: .85; }
 
   /* ---- 操作案内 ---- */
   #start { position: fixed; inset: 0; z-index: 5; display: none; place-items: center; background: rgba(20,18,15,.55);
@@ -94,6 +96,7 @@
   <div id="bar"><i></i></div>
   <div id="pct">0%</div>
   <div id="msg">読み込み中…</div>
+  <div id="org">帝国妖異対策局</div>
 </div>
 <script type="module" src="/src/main.js"></script>
 </body>

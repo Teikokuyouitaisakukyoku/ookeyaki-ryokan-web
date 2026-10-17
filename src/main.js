@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { loadAll } from './loader.js';
 import { Collision } from './collision.js';
+import { applyStageEdits, setupNightProps } from './stage-edits.js';
+import { now, inHours, setTime } from './schedule.js';
 import { Player } from './player.js';
 import { NavGraph } from './nav.js';
 import { Residents } from './npc.js';
@@ -59,8 +61,11 @@ try {
   $('msg').textContent = `読み込みに失敗しました: ${e.message}`;
   throw e;
 }
+applyStageEdits(world.stage);
 scene.add(world.stage);
 const collision = new Collision(world.stage);
+const setNight = setupNightProps(world.stage, collision);
+setNight(inHours(now(), 23, 5));
 
 const player = new Player(camera, canvas, collision, world.spawns);
 const startIdx = Math.max(0, world.spawns.findIndex((s) => s.name.includes('玄関土間')));
@@ -110,10 +115,12 @@ renderer.setAnimationLoop(() => {
   fpsN++; fpsT += dt;
   if (fpsT > 0.5) {
     const p = player.feet;
-    hud.textContent = `x ${p.x.toFixed(1)}  y ${p.y.toFixed(1)}  z ${p.z.toFixed(1)}   ${(fpsN / fpsT).toFixed(0)} fps`;
+    const d = now();
+    setNight(inHours(d, 23, 5));
+    hud.textContent = `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}   x ${p.x.toFixed(1)}  y ${p.y.toFixed(1)}  z ${p.z.toFixed(1)}   ${(fpsN / fpsT).toFixed(0)} fps`;
     fpsN = 0; fpsT = 0;
   }
 });
 
 // 動作確認・ナビ生成用
-window.app = { THREE, scene, camera, renderer, collision, player, world, nav, residents, talk };
+window.app = { THREE, scene, camera, renderer, collision, player, world, nav, residents, talk, setTime };
