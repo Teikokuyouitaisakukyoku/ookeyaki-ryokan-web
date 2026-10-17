@@ -10,6 +10,10 @@ const TURN_RATE = 6;          // rad/s
 const SIT_TIME = 0.9;         // 座る・立つの遷移秒
 const rand = ([a, b]) => a + Math.random() * (b - a);
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
+// 靴: 館内では脱ぐ。足元がこの高さより低い（土間・屋外）ときだけ履く。Hachi は靴が肌に描いてあるので対象外
+const SHOE_Y = 0.2;
+const SHOE_WEARERS = ['kyokucho', 'shinkuro'];
+const SHOE_SWAP = 0.45;       // しゃがむ動きのこの割合のところで靴を付け外しする
 const PULL_SPEED = 2.2;        // 引っ張られて動く最大速度(m/s)
 const ARM_LEN = 0.55;         // つかまれた手と体の距離
 const LIE_TIME = 1.8;         // 横になる・起き上がる秒
@@ -65,6 +69,10 @@ class Resident {
     this.mode = 'routine';   // routine | sleep | room
     this.wokeNight = null;   // 起こされた夜（その夜はもう寝ない）
     this.root.rotation.order = 'YXZ'; // 向き → 傾き（横になる）の順
+    // 靴のメッシュ（VRoid の素材名 ..._Shoes_..._CLOTH。素材は本体と輪郭線の 2 つ組）
+    this.shoes = [];
+    if (SHOE_WEARERS.includes(name)) vrm.scene.traverse((o) => { if (o.isMesh && [].concat(o.material).some((m) => /Shoes/i.test(m.name))) this.shoes.push(o); });
+    this.shoesOn = true;
     if (this.sched?.bed) this.setupBed(BEDS[this.sched.bed]);
   }
 
@@ -100,6 +108,7 @@ class Resident {
 
   /** 読み込んだ時点で就寝中: 布団の上に寝かせて置く */
   sleepNow() {
+    this.setShoes(false);
     this.node = this.bed.node;
     this.lieFrom = this.nodePos(this.bed.node);
     this.lieYawFrom = this.bed.yaw;
@@ -171,7 +180,7 @@ class Resident {
       return;
     }
     // 座る・立つの途中は気づいても動きを止めない
-    const busy = this.state === 'sitting' || this.state === 'standing';
+    const busy = this.state === 'sitting' || this.state === 'standing' || this.state === 'shoes';
     if (this.ignore && this.dist > NOTICE_OUT) this.ignore = false;
     const can = !this.ignore && !this.suppressed;
     if (!this.attending && this.dist < NOTICE_R && !busy && can) this.startAttend();
@@ -240,6 +249,7 @@ class Resident {
     const speed = Math.hypot(pos.x - before.x, pos.z - before.z) / dt;
     p.walk += ((speed > 0.1 ? 1 : 0) - p.walk) * Math.min(1, dt * 8);
     p.speed = speed;
+    if (this.needShoeChange(pos.y)) this.setShoes(pos.y < SHOE_Y); // 引っ張られて土間に降りたときは、その場で付け外し
   }
 
   endDrag() {
@@ -294,6 +304,43 @@ class Resident {
     const n = this.world.nav.nodes[nodeIdx];
     this.node = nodeIdx;
     this.root.position.set(n.x, n.y, n.z);
+    this.setShoes(n.y < SHOE_Y);
+  }
+
+  // ---- 靴
+  setShoes(on) {
+    this.shoesOn = on;
+    for (const m of this.shoes) m.visible = on;
+  }
+
+  /** 次に踏む場所（y）で靴を履いているべきか違うなら、立ち止まってしゃがみ、靴を脱ぐ・履く */
+  needShoeChange(y) { return this.shoes.length > 0 && (y < SHOE_Y) !== this.shoesOn; }
+
+  beginShoeChange() {
+    this.state = 'shoes';
+    this.shoeT = 0;
+    this.shoeDone = false;
+    const clip = this.pose.clips.squat;
+    this.shoeDur = clip ? clip.duration : 2.0;
+    this.pose.play('squat', { once: true, fade: 0.3, onDone: () => this.endShoeChange() });
+    if (!clip) this.pose.sitKind = 'floor'; // モーションが読めなかったときは手続きで少し屈む
+  }
+
+  updateShoeChange(dt) {
+    const p = this.pose;
+    this.shoeT += dt;
+    p.walk = Math.max(0, p.walk - dt * 6);
+    if (!p.clips.squat) p.sit = Math.sin(Math.PI * Math.min(1, this.shoeT / this.shoeDur)) * 0.6;
+    if (!this.shoeDone && this.shoeT >= this.shoeDur * SHOE_SWAP) { this.shoeDone = true; this.setShoes(!this.shoesOn); }
+    if (!p.clips.squat && this.shoeT >= this.shoeDur) this.endShoeChange();
+  }
+
+  endShoeChange() {
+    if (this.state !== 'shoes') return;
+    if (!this.shoeDone) this.setShoes(!this.shoesOn);
+    this.pose.sit = 0;
+    this.state = 'walk';
+    this.pose.play(this.style.walk, { timeScale: this.walkScale, fade: 0.35 });
   }
 
   resolve(target) {
@@ -361,7 +408,7 @@ class Resident {
       p.update(dt);
       return;
     }
-    if (this.attending && this.state !== 'sitting' && this.state !== 'standing') {
+    if (this.attending && this.state !== 'sitting' && this.state !== 'standing' && this.state !== 'shoes') {
       // 立ち止まって（座っていれば座ったまま）こちらを見る。タイマーも止める
       this.attend(dt, eye);
       p.speed = 0;
@@ -381,6 +428,7 @@ class Resident {
       let budget = WALK_SPEED * dt;
       while (budget > 0 && this.pi < this.path.length) {
         const t = nav.nodes[this.path[this.pi]];
+        if (this.needShoeChange(t.y)) { this.beginShoeChange(); break; } // 上がり框の手前で履き替える
         const dx = t.x - pos.x, dz = t.z - pos.z;
         const d = Math.hypot(dx, dz);
         const want = Math.atan2(dx, dz);
@@ -402,6 +450,8 @@ class Resident {
         else if (this.seat) this.beginSit();
         else { this.state = 'idle'; this.timer = 0.01; this.nextStep(); }
       }
+    } else if (this.state === 'shoes') {
+      this.updateShoeChange(dt);
     } else if (this.state === 'sitting' || this.state === 'sit-stay' || this.state === 'standing') {
       this.updateSeat(dt);
     } else if (this.state === 'lying' || this.state === 'sleeping' || this.state === 'waking') {
