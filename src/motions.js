@@ -25,6 +25,7 @@ export const MOTIONS = {
   surprise: `${B}/日常モーション/25_驚く/25_驚く_Surprise.vrma`,
   laugh: `${B}/日常モーション/24_笑う/24_笑う_Laugh.vrma`,
   pout: `${B}/仕草モーション/G18_ぷんっとそっぽ/G18_ぷんっとそっぽ_PoutTurn.vrma`,
+  squat: `${B}/日常モーション/11_しゃがむ/11_しゃがむ_Squat.vrma`, // 靴を脱ぐ・履く
 };
 
 /**
