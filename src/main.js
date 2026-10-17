@@ -73,7 +73,11 @@ if (nav) {
 }
 
 const startEl = $('start');
-player.onLockChange = (locked) => startEl.classList.toggle('show', !locked);
+player.onLockChange = (locked) => {
+  if (locked) talk?.relocked();
+  // お知らせ中はリンクを押せるよう、操作案内を出さずにカーソルだけ解放する
+  startEl.classList.toggle('show', !locked && talk?.state !== 'news');
+};
 startEl.addEventListener('click', () => player.lock());
 canvas.addEventListener('click', () => { if (!player.locked) player.lock(); });
 
@@ -84,8 +88,10 @@ startEl.classList.add('show');
 
 // ---- 会話（正面まで来た住人と話す。スペース／クリックで返事）
 const talk = residents ? new Conversation($('dialog'), residents, camera) : null;
+if (talk) talk.onEnd = () => startEl.classList.toggle('show', !player.locked);
 addEventListener('keydown', (e) => {
   if (e.code === 'Space') { e.preventDefault(); talk?.input('key'); }
+  if (e.code === 'Enter' || e.code === 'NumpadEnter') talk?.openLink();
 });
 document.addEventListener('mousedown', (e) => {
   if (e.button === 0 && player.locked) talk?.input('click'); // 照準（画面中央）の先をクリック
