@@ -1,0 +1,1360 @@
+{
+ "model": "OokeyakiRyokan.glb",
+ "coords": "glTF: +Y up, +Z front (road side), origin = genkan doma, meters",
+ "position": "座面の上",
+ "kinds": [
+  "bath",
+  "bench",
+  "chair",
+  "step",
+  "stool",
+  "zabuton",
+  "zaisu"
+ ],
+ "seats": [
+  {
+   "name": "Seat_Hiroma_01",
+   "room": "Hiroma",
+   "kind": "zabuton",
+   "part": "H1",
+   "position": [
+    -1.4737,
+    0.47,
+    -4.68
+   ],
+   "forward": [
+    -0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "name": "Seat_Hiroma_02",
+   "room": "Hiroma",
+   "kind": "zabuton",
+   "part": "H1",
+   "position": [
+    -1.4737,
+    0.47,
+    -6.24
+   ],
+   "forward": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Seat_Hiroma_03",
+   "room": "Hiroma",
+   "kind": "zabuton",
+   "part": "H1",
+   "position": [
+    -0.5738,
+    0.47,
+    -4.68
+   ],
+   "forward": [
+    -0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "name": "Seat_Hiroma_04",
+   "room": "Hiroma",
+   "kind": "zabuton",
+   "part": "H1",
+   "position": [
+    -0.5738,
+    0.47,
+    -6.24
+   ],
+   "forward": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Seat_Hiroma_05",
+   "room": "Hiroma",
+   "kind": "zabuton",
+   "part": "H1",
+   "position": [
+    1.9387,
+    0.47,
+    -4.68
+   ],
+   "forward": [
+    -0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "name": "Seat_Hiroma_06",
+   "room": "Hiroma",
+   "kind": "zabuton",
+   "part": "H1",
+   "position": [
+    1.9387,
+    0.47,
+    -6.24
+   ],
+   "forward": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Seat_Hiroma_07",
+   "room": "Hiroma",
+   "kind": "zabuton",
+   "part": "H1",
+   "position": [
+    2.8388,
+    0.47,
+    -4.68
+   ],
+   "forward": [
+    -0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "name": "Seat_Hiroma_08",
+   "room": "Hiroma",
+   "kind": "zabuton",
+   "part": "H1",
+   "position": [
+    2.8388,
+    0.47,
+    -6.24
+   ],
+   "forward": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Seat_Hiroma_09",
+   "room": "Hiroma",
+   "kind": "zabuton",
+   "part": "H1",
+   "position": [
+    5.3513,
+    0.47,
+    -4.68
+   ],
+   "forward": [
+    -0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "name": "Seat_Hiroma_10",
+   "room": "Hiroma",
+   "kind": "zabuton",
+   "part": "H1",
+   "position": [
+    5.3513,
+    0.47,
+    -6.24
+   ],
+   "forward": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Seat_Hiroma_11",
+   "room": "Hiroma",
+   "kind": "zabuton",
+   "part": "H1",
+   "position": [
+    6.2512,
+    0.47,
+    -4.68
+   ],
+   "forward": [
+    -0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "name": "Seat_Hiroma_12",
+   "room": "Hiroma",
+   "kind": "zabuton",
+   "part": "H1",
+   "position": [
+    6.2512,
+    0.47,
+    -6.24
+   ],
+   "forward": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Seat_Ima_01",
+   "room": "Ima",
+   "kind": "zaisu",
+   "part": "H1",
+   "position": [
+    9.2137,
+    0.52,
+    -4.74
+   ],
+   "forward": [
+    -0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "name": "Seat_Ima_02",
+   "room": "Ima",
+   "kind": "zaisu",
+   "part": "H1",
+   "position": [
+    9.2137,
+    0.52,
+    -6.18
+   ],
+   "forward": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Seat_Ima_03",
+   "room": "Ima",
+   "kind": "zabuton",
+   "part": "H1",
+   "position": [
+    10.0637,
+    0.47,
+    -5.46
+   ],
+   "forward": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_Ima_04",
+   "room": "Ima",
+   "kind": "zabuton",
+   "part": "H1",
+   "position": [
+    8.3638,
+    0.47,
+    -5.46
+   ],
+   "forward": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_Counter_01",
+   "room": "Counter",
+   "kind": "stool",
+   "part": "H1",
+   "position": [
+    -2.84,
+    0.85,
+    -5.074
+   ],
+   "forward": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_Counter_02",
+   "room": "Counter",
+   "kind": "stool",
+   "part": "H1",
+   "position": [
+    -2.84,
+    0.85,
+    -5.824
+   ],
+   "forward": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_Counter_03",
+   "room": "Counter",
+   "kind": "stool",
+   "part": "H1",
+   "position": [
+    -2.84,
+    0.85,
+    -6.574
+   ],
+   "forward": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_Engawa_01",
+   "room": "Engawa",
+   "kind": "zabuton",
+   "part": "H1",
+   "position": [
+    1.365,
+    0.47,
+    -7.9625
+   ],
+   "forward": [
+    -0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "name": "Seat_Engawa_02",
+   "room": "Engawa",
+   "kind": "zabuton",
+   "part": "H1",
+   "position": [
+    2.184,
+    0.47,
+    -7.9625
+   ],
+   "forward": [
+    -0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "name": "Seat_Lobby_01",
+   "room": "Lobby",
+   "kind": "bench",
+   "part": "H1",
+   "position": [
+    3.715,
+    0.82,
+    -3.378
+   ],
+   "forward": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Seat_Lobby_02",
+   "room": "Lobby",
+   "kind": "bench",
+   "part": "H1",
+   "position": [
+    4.475,
+    0.82,
+    -3.378
+   ],
+   "forward": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Seat_Game_01",
+   "room": "Game",
+   "kind": "bench",
+   "part": "H1",
+   "position": [
+    5.99,
+    0.42,
+    -0.312
+   ],
+   "forward": [
+    -0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "name": "Seat_Game_02",
+   "room": "Game",
+   "kind": "bench",
+   "part": "H1",
+   "position": [
+    6.75,
+    0.42,
+    -0.312
+   ],
+   "forward": [
+    -0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "name": "Seat_Game_03",
+   "room": "Game",
+   "kind": "stool",
+   "part": "H1",
+   "position": [
+    9.48,
+    0.45,
+    -1.122
+   ],
+   "forward": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Seat_Game_04",
+   "room": "Game",
+   "kind": "stool",
+   "part": "H1",
+   "position": [
+    10.04,
+    0.45,
+    -1.122
+   ],
+   "forward": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Seat_Agarikamachi_01",
+   "room": "Agarikamachi",
+   "kind": "step",
+   "part": "H1",
+   "position": [
+    5.76,
+    0.4,
+    -2.0
+   ],
+   "forward": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Seat_Agarikamachi_02",
+   "room": "Agarikamachi",
+   "kind": "step",
+   "part": "H1",
+   "position": [
+    6.67,
+    0.4,
+    -2.0
+   ],
+   "forward": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Seat_Agarikamachi_03",
+   "room": "Agarikamachi",
+   "kind": "step",
+   "part": "H1",
+   "position": [
+    7.58,
+    0.4,
+    -2.0
+   ],
+   "forward": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Seat_Stream_01",
+   "room": "Stream",
+   "kind": "chair",
+   "part": "S2",
+   "position": [
+    19.968,
+    4.42,
+    -22.9
+   ],
+   "forward": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_StreamTalk_01",
+   "room": "StreamTalk",
+   "kind": "chair",
+   "part": "S2",
+   "position": [
+    18.574,
+    4.43,
+    -18.512
+   ],
+   "forward": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_StreamTalk_02",
+   "room": "StreamTalk",
+   "kind": "chair",
+   "part": "S2",
+   "position": [
+    20.014,
+    4.43,
+    -18.512
+   ],
+   "forward": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_StreamTalk_03",
+   "room": "StreamTalk",
+   "kind": "chair",
+   "part": "S2",
+   "position": [
+    18.574,
+    4.43,
+    -19.912
+   ],
+   "forward": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_StreamTalk_04",
+   "room": "StreamTalk",
+   "kind": "chair",
+   "part": "S2",
+   "position": [
+    20.014,
+    4.43,
+    -19.912
+   ],
+   "forward": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_MenTub_01",
+   "room": "MenTub",
+   "kind": "bath",
+   "part": "S1",
+   "position": [
+    20.57,
+    1.1,
+    -20.4
+   ],
+   "forward": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_MenTub_02",
+   "room": "MenTub",
+   "kind": "bath",
+   "part": "S1",
+   "position": [
+    20.57,
+    1.1,
+    -21.4
+   ],
+   "forward": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_MenTub_03",
+   "room": "MenTub",
+   "kind": "bath",
+   "part": "S1",
+   "position": [
+    20.57,
+    1.1,
+    -22.4
+   ],
+   "forward": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_MenKaran_01",
+   "room": "MenKaran",
+   "kind": "stool",
+   "part": "S1",
+   "position": [
+    18.05,
+    1.1,
+    -17.2
+   ],
+   "forward": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_MenKaran_02",
+   "room": "MenKaran",
+   "kind": "stool",
+   "part": "S1",
+   "position": [
+    18.05,
+    1.1,
+    -18.1
+   ],
+   "forward": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_MenKaran_03",
+   "room": "MenKaran",
+   "kind": "stool",
+   "part": "S1",
+   "position": [
+    18.05,
+    1.1,
+    -19.0
+   ],
+   "forward": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_MenKaran_04",
+   "room": "MenKaran",
+   "kind": "stool",
+   "part": "S1",
+   "position": [
+    18.05,
+    1.1,
+    -19.9
+   ],
+   "forward": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_MenKaran_05",
+   "room": "MenKaran",
+   "kind": "stool",
+   "part": "S1",
+   "position": [
+    18.05,
+    1.1,
+    -20.8
+   ],
+   "forward": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_MenKaran_06",
+   "room": "MenKaran",
+   "kind": "stool",
+   "part": "S1",
+   "position": [
+    18.05,
+    1.1,
+    -21.7
+   ],
+   "forward": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_MenKaran_07",
+   "room": "MenKaran",
+   "kind": "stool",
+   "part": "S1",
+   "position": [
+    18.05,
+    1.1,
+    -22.6
+   ],
+   "forward": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_MenDatsui_01",
+   "room": "MenDatsui",
+   "kind": "bench",
+   "part": "S1",
+   "position": [
+    17.7,
+    1.27,
+    -14.6
+   ],
+   "forward": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_MenDatsui_02",
+   "room": "MenDatsui",
+   "kind": "bench",
+   "part": "S1",
+   "position": [
+    17.7,
+    1.27,
+    -15.4
+   ],
+   "forward": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_WomenTub_01",
+   "room": "WomenTub",
+   "kind": "bath",
+   "part": "S1",
+   "position": [
+    23.23,
+    1.1,
+    -20.4
+   ],
+   "forward": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_WomenTub_02",
+   "room": "WomenTub",
+   "kind": "bath",
+   "part": "S1",
+   "position": [
+    23.23,
+    1.1,
+    -21.4
+   ],
+   "forward": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_WomenTub_03",
+   "room": "WomenTub",
+   "kind": "bath",
+   "part": "S1",
+   "position": [
+    23.23,
+    1.1,
+    -22.4
+   ],
+   "forward": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_WomenKaran_01",
+   "room": "WomenKaran",
+   "kind": "stool",
+   "part": "S1",
+   "position": [
+    25.75,
+    1.1,
+    -17.2
+   ],
+   "forward": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_WomenKaran_02",
+   "room": "WomenKaran",
+   "kind": "stool",
+   "part": "S1",
+   "position": [
+    25.75,
+    1.1,
+    -18.1
+   ],
+   "forward": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_WomenKaran_03",
+   "room": "WomenKaran",
+   "kind": "stool",
+   "part": "S1",
+   "position": [
+    25.75,
+    1.1,
+    -19.0
+   ],
+   "forward": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_WomenKaran_04",
+   "room": "WomenKaran",
+   "kind": "stool",
+   "part": "S1",
+   "position": [
+    25.75,
+    1.1,
+    -19.9
+   ],
+   "forward": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_WomenKaran_05",
+   "room": "WomenKaran",
+   "kind": "stool",
+   "part": "S1",
+   "position": [
+    25.75,
+    1.1,
+    -20.8
+   ],
+   "forward": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_WomenKaran_06",
+   "room": "WomenKaran",
+   "kind": "stool",
+   "part": "S1",
+   "position": [
+    25.75,
+    1.1,
+    -21.7
+   ],
+   "forward": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_WomenKaran_07",
+   "room": "WomenKaran",
+   "kind": "stool",
+   "part": "S1",
+   "position": [
+    25.75,
+    1.1,
+    -22.6
+   ],
+   "forward": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_WomenDatsui_01",
+   "room": "WomenDatsui",
+   "kind": "bench",
+   "part": "S1",
+   "position": [
+    26.1,
+    1.27,
+    -14.6
+   ],
+   "forward": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_WomenDatsui_02",
+   "room": "WomenDatsui",
+   "kind": "bench",
+   "part": "S1",
+   "position": [
+    26.1,
+    1.27,
+    -15.4
+   ],
+   "forward": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_Room201_01",
+   "room": "Room201",
+   "kind": "chair",
+   "part": "H2",
+   "position": [
+    -8.62,
+    3.82,
+    -0.96
+   ],
+   "forward": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_Room201_02",
+   "room": "Room201",
+   "kind": "chair",
+   "part": "H2",
+   "position": [
+    -7.34,
+    3.82,
+    -0.96
+   ],
+   "forward": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_Room201_03",
+   "room": "Room201",
+   "kind": "zaisu",
+   "part": "H2",
+   "position": [
+    -7.5,
+    3.52,
+    -2.908
+   ],
+   "forward": [
+    -0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "name": "Seat_Room201_04",
+   "room": "Room201",
+   "kind": "zabuton",
+   "part": "H2",
+   "position": [
+    -7.5,
+    3.47,
+    -4.328
+   ],
+   "forward": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Seat_Room202_01",
+   "room": "Room202",
+   "kind": "chair",
+   "part": "H2",
+   "position": [
+    -4.98,
+    3.82,
+    -0.96
+   ],
+   "forward": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_Room202_02",
+   "room": "Room202",
+   "kind": "chair",
+   "part": "H2",
+   "position": [
+    -3.7,
+    3.82,
+    -0.96
+   ],
+   "forward": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_Room202_03",
+   "room": "Room202",
+   "kind": "chair",
+   "part": "H2",
+   "position": [
+    -3.13,
+    3.87,
+    -3.608
+   ],
+   "forward": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_Room203_01",
+   "room": "Room203",
+   "kind": "chair",
+   "part": "H2",
+   "position": [
+    -1.34,
+    3.82,
+    -0.96
+   ],
+   "forward": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_Room203_02",
+   "room": "Room203",
+   "kind": "chair",
+   "part": "H2",
+   "position": [
+    -0.06,
+    3.82,
+    -0.96
+   ],
+   "forward": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_Room203_03",
+   "room": "Room203",
+   "kind": "chair",
+   "part": "H2",
+   "position": [
+    0.61,
+    3.87,
+    -3.608
+   ],
+   "forward": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_Room204_01",
+   "room": "Room204",
+   "kind": "chair",
+   "part": "H2",
+   "position": [
+    2.3,
+    3.82,
+    -0.96
+   ],
+   "forward": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_Room204_02",
+   "room": "Room204",
+   "kind": "chair",
+   "part": "H2",
+   "position": [
+    3.58,
+    3.82,
+    -0.96
+   ],
+   "forward": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_Room204_03",
+   "room": "Room204",
+   "kind": "zaisu",
+   "part": "H2",
+   "position": [
+    2.83,
+    3.52,
+    -3.208
+   ],
+   "forward": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_Room205_01",
+   "room": "Room205",
+   "kind": "chair",
+   "part": "H2",
+   "position": [
+    5.94,
+    3.82,
+    -0.96
+   ],
+   "forward": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_Room205_02",
+   "room": "Room205",
+   "kind": "chair",
+   "part": "H2",
+   "position": [
+    7.22,
+    3.82,
+    -0.96
+   ],
+   "forward": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_Room205_03",
+   "room": "Room205",
+   "kind": "zabuton",
+   "part": "H2",
+   "position": [
+    7.28,
+    3.47,
+    -4.328
+   ],
+   "forward": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Seat_Room205_04",
+   "room": "Room205",
+   "kind": "zabuton",
+   "part": "H2",
+   "position": [
+    7.28,
+    3.47,
+    -2.888
+   ],
+   "forward": [
+    -0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "name": "Seat_Room205_05",
+   "room": "Room205",
+   "kind": "zabuton",
+   "part": "H2",
+   "position": [
+    8.13,
+    3.47,
+    -3.608
+   ],
+   "forward": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_Room205_06",
+   "room": "Room205",
+   "kind": "zabuton",
+   "part": "H2",
+   "position": [
+    6.43,
+    3.47,
+    -3.608
+   ],
+   "forward": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_Room206_01",
+   "room": "Room206",
+   "kind": "chair",
+   "part": "H2",
+   "position": [
+    9.58,
+    3.82,
+    -0.96
+   ],
+   "forward": [
+    1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_Room206_02",
+   "room": "Room206",
+   "kind": "chair",
+   "part": "H2",
+   "position": [
+    10.86,
+    3.82,
+    -0.96
+   ],
+   "forward": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_Room206_03",
+   "room": "Room206",
+   "kind": "zabuton",
+   "part": "H2",
+   "position": [
+    10.5,
+    3.47,
+    -2.07
+   ],
+   "forward": [
+    -0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "name": "Seat_Room221_01",
+   "room": "Room221",
+   "kind": "zaisu",
+   "part": "S2",
+   "position": [
+    18.45,
+    4.07,
+    -13.964
+   ],
+   "forward": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "name": "Seat_Office_01",
+   "room": "Office",
+   "kind": "chair",
+   "part": "H1",
+   "position": [
+    -6.825,
+    0.88,
+    -1.277
+   ],
+   "forward": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Seat_Office_02",
+   "room": "Office",
+   "kind": "chair",
+   "part": "H1",
+   "position": [
+    -7.845,
+    0.88,
+    -1.92
+   ],
+   "forward": [
+    -1.0,
+    0.0,
+    -0.0
+   ]
+  }
+ ]
+}

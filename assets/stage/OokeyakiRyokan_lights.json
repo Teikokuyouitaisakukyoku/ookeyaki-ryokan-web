@@ -1,0 +1,3878 @@
+{
+ "model": "OokeyakiRyokan.glb",
+ "coords": "glTF: +Y up, +Z front (road side), origin = genkan doma, meters",
+ "unity_axis": "UniGLTF Invert axis X: Unity=(-x, y, z) / Z（既定）: Unity=(x, y, -z)。forward も同じく変換",
+ "unity_intensity": "URP の目安。点光源=W/(4π²)、面光源=W/π²、太陽=strength/π。全体の明るさは露出で合わせ、比は保つ",
+ "dark_rooms": [
+  "room203"
+ ],
+ "lights": [
+  {
+   "id": "L_fluo_0",
+   "kind": "fluo",
+   "room": "office",
+   "room_name": "事務所",
+   "on": true,
+   "position": [
+    -7.9625,
+    3.0,
+    -1.82
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     1.2,
+     0.12
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 1.2,
+    "height": 0.12,
+    "long_axis": "x"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_1",
+   "kind": "fluo",
+   "room": "office",
+   "room_name": "事務所",
+   "on": true,
+   "position": [
+    -5.6875,
+    3.0,
+    -1.82
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     1.2,
+     0.12
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 1.2,
+    "height": 0.12,
+    "long_axis": "x"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_globe_2",
+   "kind": "globe",
+   "room": "doma",
+   "room_name": "玄関土間",
+   "on": true,
+   "position": [
+    -3.0333,
+    2.95,
+    -0.91
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_3",
+   "kind": "globe",
+   "room": "doma",
+   "room_name": "玄関土間",
+   "on": true,
+   "position": [
+    0.0,
+    2.95,
+    -0.91
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_4",
+   "kind": "globe",
+   "room": "doma",
+   "room_name": "玄関土間",
+   "on": true,
+   "position": [
+    3.0333,
+    2.95,
+    -0.91
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_5",
+   "kind": "globe",
+   "room": "game",
+   "room_name": "ゲームコーナー",
+   "on": true,
+   "position": [
+    5.915,
+    2.95,
+    -0.91
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_6",
+   "kind": "globe",
+   "room": "game",
+   "room_name": "ゲームコーナー",
+   "on": true,
+   "position": [
+    8.645,
+    2.95,
+    -0.91
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_7",
+   "kind": "globe",
+   "room": "game",
+   "room_name": "ゲームコーナー",
+   "on": true,
+   "position": [
+    11.375,
+    2.95,
+    -0.91
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_pend_8",
+   "kind": "pendant",
+   "room": "lobby",
+   "room_name": "ロビー",
+   "on": true,
+   "position": [
+    -3.003,
+    2.6,
+    -2.73
+   ],
+   "color_linear": [
+    1.0,
+    0.72,
+    0.45
+   ],
+   "color_srgb": "#FFDDB3",
+   "blender": {
+    "type": "POINT",
+    "watts": 70,
+    "radius": 0.18
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.77,
+    "range": 9.4,
+    "shadow_radius": 0.18
+   }
+  },
+  {
+   "id": "L_pend_9",
+   "kind": "pendant",
+   "room": "lobby",
+   "room_name": "ロビー",
+   "on": true,
+   "position": [
+    0.091,
+    2.6,
+    -2.73
+   ],
+   "color_linear": [
+    1.0,
+    0.72,
+    0.45
+   ],
+   "color_srgb": "#FFDDB3",
+   "blender": {
+    "type": "POINT",
+    "watts": 70,
+    "radius": 0.18
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.77,
+    "range": 9.4,
+    "shadow_radius": 0.18
+   }
+  },
+  {
+   "id": "L_pend_10",
+   "kind": "pendant",
+   "room": "lobby",
+   "room_name": "ロビー",
+   "on": true,
+   "position": [
+    3.185,
+    2.6,
+    -2.73
+   ],
+   "color_linear": [
+    1.0,
+    0.72,
+    0.45
+   ],
+   "color_srgb": "#FFDDB3",
+   "blender": {
+    "type": "POINT",
+    "watts": 70,
+    "radius": 0.18
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.77,
+    "range": 9.4,
+    "shadow_radius": 0.18
+   }
+  },
+  {
+   "id": "L_pend_11",
+   "kind": "pendant",
+   "room": "lobby",
+   "room_name": "ロビー",
+   "on": true,
+   "position": [
+    6.279,
+    2.6,
+    -2.73
+   ],
+   "color_linear": [
+    1.0,
+    0.72,
+    0.45
+   ],
+   "color_srgb": "#FFDDB3",
+   "blender": {
+    "type": "POINT",
+    "watts": 70,
+    "radius": 0.18
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.77,
+    "range": 9.4,
+    "shadow_radius": 0.18
+   }
+  },
+  {
+   "id": "L_pend_12",
+   "kind": "pendant",
+   "room": "lobby",
+   "room_name": "ロビー",
+   "on": true,
+   "position": [
+    9.373,
+    2.6,
+    -2.73
+   ],
+   "color_linear": [
+    1.0,
+    0.72,
+    0.45
+   ],
+   "color_srgb": "#FFDDB3",
+   "blender": {
+    "type": "POINT",
+    "watts": 70,
+    "radius": 0.18
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.77,
+    "range": 9.4,
+    "shadow_radius": 0.18
+   }
+  },
+  {
+   "id": "L_pend_13",
+   "kind": "pendant",
+   "room": "counter",
+   "room_name": "喫茶カウンター",
+   "on": true,
+   "position": [
+    -3.64,
+    2.6,
+    -5.46
+   ],
+   "color_linear": [
+    1.0,
+    0.72,
+    0.45
+   ],
+   "color_srgb": "#FFDDB3",
+   "blender": {
+    "type": "POINT",
+    "watts": 70,
+    "radius": 0.18
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.77,
+    "range": 9.4,
+    "shadow_radius": 0.18
+   }
+  },
+  {
+   "id": "L_pend_14",
+   "kind": "pendant",
+   "room": "hiroma",
+   "room_name": "広間",
+   "on": true,
+   "position": [
+    -1.0237,
+    2.6,
+    -5.46
+   ],
+   "color_linear": [
+    1.0,
+    0.72,
+    0.45
+   ],
+   "color_srgb": "#FFDDB3",
+   "blender": {
+    "type": "POINT",
+    "watts": 70,
+    "radius": 0.18
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.77,
+    "range": 9.4,
+    "shadow_radius": 0.18
+   }
+  },
+  {
+   "id": "L_pend_15",
+   "kind": "pendant",
+   "room": "hiroma",
+   "room_name": "広間",
+   "on": true,
+   "position": [
+    2.3887,
+    2.6,
+    -5.46
+   ],
+   "color_linear": [
+    1.0,
+    0.72,
+    0.45
+   ],
+   "color_srgb": "#FFDDB3",
+   "blender": {
+    "type": "POINT",
+    "watts": 70,
+    "radius": 0.18
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.77,
+    "range": 9.4,
+    "shadow_radius": 0.18
+   }
+  },
+  {
+   "id": "L_pend_16",
+   "kind": "pendant",
+   "room": "hiroma",
+   "room_name": "広間",
+   "on": true,
+   "position": [
+    5.8013,
+    2.6,
+    -5.46
+   ],
+   "color_linear": [
+    1.0,
+    0.72,
+    0.45
+   ],
+   "color_srgb": "#FFDDB3",
+   "blender": {
+    "type": "POINT",
+    "watts": 70,
+    "radius": 0.18
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.77,
+    "range": 9.4,
+    "shadow_radius": 0.18
+   }
+  },
+  {
+   "id": "L_pend_17",
+   "kind": "pendant",
+   "room": "hiroma",
+   "room_name": "広間",
+   "on": true,
+   "position": [
+    9.2137,
+    2.6,
+    -5.46
+   ],
+   "color_linear": [
+    1.0,
+    0.72,
+    0.45
+   ],
+   "color_srgb": "#FFDDB3",
+   "blender": {
+    "type": "POINT",
+    "watts": 70,
+    "radius": 0.18
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.77,
+    "range": 9.4,
+    "shadow_radius": 0.18
+   }
+  },
+  {
+   "id": "L_globe_18",
+   "kind": "globe",
+   "room": "engawa",
+   "room_name": "縁側",
+   "on": true,
+   "position": [
+    -3.003,
+    2.95,
+    -7.9625
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_19",
+   "kind": "globe",
+   "room": "engawa",
+   "room_name": "縁側",
+   "on": true,
+   "position": [
+    0.091,
+    2.95,
+    -7.9625
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_20",
+   "kind": "globe",
+   "room": "engawa",
+   "room_name": "縁側",
+   "on": true,
+   "position": [
+    3.185,
+    2.95,
+    -7.9625
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_21",
+   "kind": "globe",
+   "room": "engawa",
+   "room_name": "縁側",
+   "on": true,
+   "position": [
+    6.279,
+    2.95,
+    -7.9625
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_22",
+   "kind": "globe",
+   "room": "engawa",
+   "room_name": "縁側",
+   "on": true,
+   "position": [
+    9.373,
+    2.95,
+    -7.9625
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_fluo_23",
+   "kind": "fluo",
+   "room": "kitchen",
+   "room_name": "厨房",
+   "on": true,
+   "position": [
+    -6.825,
+    3.0,
+    -4.8913
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     0.12,
+     1.2
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 0.12,
+    "height": 1.2,
+    "long_axis": "z"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_24",
+   "kind": "fluo",
+   "room": "kitchen",
+   "room_name": "厨房",
+   "on": true,
+   "position": [
+    -6.825,
+    3.0,
+    -7.3938
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     0.12,
+     1.2
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 0.12,
+    "height": 1.2,
+    "long_axis": "z"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_globe_25",
+   "kind": "globe",
+   "room": "corr1",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    11.83,
+    2.95,
+    -3.5263
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_26",
+   "kind": "globe",
+   "room": "corr1",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    11.83,
+    2.95,
+    -6.9387
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_27",
+   "kind": "globe",
+   "room": "landing1",
+   "room_name": "踊り場",
+   "on": true,
+   "position": [
+    13.4225,
+    2.95,
+    -1.82
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_28",
+   "kind": "globe",
+   "room": "wc1",
+   "room_name": "便所",
+   "on": true,
+   "position": [
+    14.7875,
+    2.95,
+    -1.82
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_29",
+   "kind": "globe",
+   "room": "store1",
+   "room_name": "物置",
+   "on": true,
+   "position": [
+    14.7875,
+    2.95,
+    -5.46
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_30",
+   "kind": "globe",
+   "room": "hall1",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    14.105,
+    2.95,
+    -7.9625
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_31",
+   "kind": "globe",
+   "room": "hiroen201",
+   "room_name": "広縁",
+   "on": true,
+   "position": [
+    -7.28,
+    5.7,
+    -0.91
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_pend_32",
+   "kind": "pendant",
+   "room": "room201",
+   "room_name": "201",
+   "on": true,
+   "position": [
+    -7.28,
+    5.35,
+    -3.64
+   ],
+   "color_linear": [
+    1.0,
+    0.72,
+    0.45
+   ],
+   "color_srgb": "#FFDDB3",
+   "blender": {
+    "type": "POINT",
+    "watts": 70,
+    "radius": 0.18
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.77,
+    "range": 9.4,
+    "shadow_radius": 0.18
+   }
+  },
+  {
+   "id": "L_globe_33",
+   "kind": "globe",
+   "room": "fumi201",
+   "room_name": "踏込",
+   "on": true,
+   "position": [
+    -8.4175,
+    5.7,
+    -6.1425
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_34",
+   "kind": "globe",
+   "room": "hiroen202",
+   "room_name": "広縁",
+   "on": true,
+   "position": [
+    -3.64,
+    5.7,
+    -0.91
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_pend_35",
+   "kind": "pendant",
+   "room": "room202",
+   "room_name": "202",
+   "on": true,
+   "position": [
+    -3.64,
+    5.35,
+    -3.64
+   ],
+   "color_linear": [
+    1.0,
+    0.72,
+    0.45
+   ],
+   "color_srgb": "#FFDDB3",
+   "blender": {
+    "type": "POINT",
+    "watts": 70,
+    "radius": 0.18
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.77,
+    "range": 9.4,
+    "shadow_radius": 0.18
+   }
+  },
+  {
+   "id": "L_globe_36",
+   "kind": "globe",
+   "room": "fumi202",
+   "room_name": "踏込",
+   "on": true,
+   "position": [
+    -4.7775,
+    5.7,
+    -6.1425
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_37",
+   "kind": "globe",
+   "room": "hiroen203",
+   "room_name": "広縁",
+   "on": true,
+   "position": [
+    0.0,
+    5.7,
+    -0.91
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_pend_38",
+   "kind": "pendant",
+   "room": "room203",
+   "room_name": "203",
+   "on": false,
+   "position": [
+    0.0,
+    5.35,
+    -3.64
+   ],
+   "color_linear": [
+    1.0,
+    0.72,
+    0.45
+   ],
+   "color_srgb": "#FFDDB3",
+   "blender": {
+    "type": "POINT",
+    "watts": 70,
+    "radius": 0.18
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.77,
+    "range": 9.4,
+    "shadow_radius": 0.18
+   }
+  },
+  {
+   "id": "L_globe_39",
+   "kind": "globe",
+   "room": "fumi203",
+   "room_name": "踏込",
+   "on": true,
+   "position": [
+    -1.1375,
+    5.7,
+    -6.1425
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_40",
+   "kind": "globe",
+   "room": "hiroen204",
+   "room_name": "広縁",
+   "on": true,
+   "position": [
+    3.64,
+    5.7,
+    -0.91
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_pend_41",
+   "kind": "pendant",
+   "room": "room204",
+   "room_name": "204",
+   "on": true,
+   "position": [
+    3.64,
+    5.35,
+    -3.64
+   ],
+   "color_linear": [
+    1.0,
+    0.72,
+    0.45
+   ],
+   "color_srgb": "#FFDDB3",
+   "blender": {
+    "type": "POINT",
+    "watts": 70,
+    "radius": 0.18
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.77,
+    "range": 9.4,
+    "shadow_radius": 0.18
+   }
+  },
+  {
+   "id": "L_globe_42",
+   "kind": "globe",
+   "room": "fumi204",
+   "room_name": "踏込",
+   "on": true,
+   "position": [
+    2.5025,
+    5.7,
+    -6.1425
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_43",
+   "kind": "globe",
+   "room": "hiroen205",
+   "room_name": "広縁",
+   "on": true,
+   "position": [
+    7.28,
+    5.7,
+    -0.91
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_pend_44",
+   "kind": "pendant",
+   "room": "room205",
+   "room_name": "205",
+   "on": true,
+   "position": [
+    7.28,
+    5.35,
+    -3.64
+   ],
+   "color_linear": [
+    1.0,
+    0.72,
+    0.45
+   ],
+   "color_srgb": "#FFDDB3",
+   "blender": {
+    "type": "POINT",
+    "watts": 70,
+    "radius": 0.18
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.77,
+    "range": 9.4,
+    "shadow_radius": 0.18
+   }
+  },
+  {
+   "id": "L_globe_45",
+   "kind": "globe",
+   "room": "fumi205",
+   "room_name": "踏込",
+   "on": true,
+   "position": [
+    6.1425,
+    5.7,
+    -6.1425
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_46",
+   "kind": "globe",
+   "room": "hiroen206",
+   "room_name": "広縁",
+   "on": true,
+   "position": [
+    10.92,
+    5.7,
+    -0.91
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_pend_47",
+   "kind": "pendant",
+   "room": "room206",
+   "room_name": "206",
+   "on": true,
+   "position": [
+    10.92,
+    5.35,
+    -3.64
+   ],
+   "color_linear": [
+    1.0,
+    0.72,
+    0.45
+   ],
+   "color_srgb": "#FFDDB3",
+   "blender": {
+    "type": "POINT",
+    "watts": 70,
+    "radius": 0.18
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.77,
+    "range": 9.4,
+    "shadow_radius": 0.18
+   }
+  },
+  {
+   "id": "L_globe_48",
+   "kind": "globe",
+   "room": "fumi206",
+   "room_name": "踏込",
+   "on": true,
+   "position": [
+    9.7825,
+    5.7,
+    -6.1425
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_49",
+   "kind": "globe",
+   "room": "corr2",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    -7.54,
+    5.7,
+    -7.735
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_50",
+   "kind": "globe",
+   "room": "corr2",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    -4.42,
+    5.7,
+    -7.735
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_51",
+   "kind": "globe",
+   "room": "corr2",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    -1.3,
+    5.7,
+    -7.735
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_52",
+   "kind": "globe",
+   "room": "corr2",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    1.82,
+    5.7,
+    -7.735
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_53",
+   "kind": "globe",
+   "room": "corr2",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    4.94,
+    5.7,
+    -7.735
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_54",
+   "kind": "globe",
+   "room": "corr2",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    8.06,
+    5.7,
+    -7.735
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_55",
+   "kind": "globe",
+   "room": "corr2",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    11.18,
+    5.7,
+    -7.735
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_56",
+   "kind": "globe",
+   "room": "corr2b",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    13.4225,
+    5.7,
+    -7.9625
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_57",
+   "kind": "globe",
+   "room": "corr2c",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    14.7875,
+    5.7,
+    -4.8913
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_58",
+   "kind": "globe",
+   "room": "corr2c",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    14.7875,
+    5.7,
+    -7.3938
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_59",
+   "kind": "globe",
+   "room": "wash2",
+   "room_name": "洗面・便所",
+   "on": true,
+   "position": [
+    14.105,
+    5.7,
+    -1.82
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_fluo_60",
+   "kind": "fluo",
+   "room": "s1_hall",
+   "room_name": "ホール",
+   "on": true,
+   "position": [
+    18.9,
+    3.35,
+    -8.125
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     0.12,
+     1.2
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 0.12,
+    "height": 1.2,
+    "long_axis": "z"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_61",
+   "kind": "fluo",
+   "room": "s1_hall",
+   "room_name": "ホール",
+   "on": true,
+   "position": [
+    18.9,
+    3.35,
+    -10.375
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     0.12,
+     1.2
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 0.12,
+    "height": 1.2,
+    "long_axis": "z"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_62",
+   "kind": "fluo",
+   "room": "s1_wet",
+   "room_name": "洗濯室・ボイラー",
+   "on": true,
+   "position": [
+    24.9,
+    3.35,
+    -8.125
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     0.12,
+     1.2
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 0.12,
+    "height": 1.2,
+    "long_axis": "z"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_63",
+   "kind": "fluo",
+   "room": "s1_wet",
+   "room_name": "洗濯室・ボイラー",
+   "on": true,
+   "position": [
+    24.9,
+    3.35,
+    -10.375
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     0.12,
+     1.2
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 0.12,
+    "height": 1.2,
+    "long_axis": "z"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_64",
+   "kind": "fluo",
+   "room": "s1_corr",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    18.9,
+    3.35,
+    -12.25
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     1.2,
+     0.12
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 1.2,
+    "height": 0.12,
+    "long_axis": "x"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_65",
+   "kind": "fluo",
+   "room": "s1_corr",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    21.9,
+    3.35,
+    -12.25
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     1.2,
+     0.12
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 1.2,
+    "height": 0.12,
+    "long_axis": "x"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_66",
+   "kind": "fluo",
+   "room": "s1_corr",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    24.9,
+    3.35,
+    -12.25
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     1.2,
+     0.12
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 1.2,
+    "height": 0.12,
+    "long_axis": "x"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_67",
+   "kind": "fluo",
+   "room": "s1_dm",
+   "room_name": "脱衣所（男）",
+   "on": true,
+   "position": [
+    18.525,
+    3.35,
+    -14.75
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     1.2,
+     0.12
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 1.2,
+    "height": 0.12,
+    "long_axis": "x"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_68",
+   "kind": "fluo",
+   "room": "s1_dm",
+   "room_name": "脱衣所（男）",
+   "on": true,
+   "position": [
+    20.775,
+    3.35,
+    -14.75
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     1.2,
+     0.12
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 1.2,
+    "height": 0.12,
+    "long_axis": "x"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_69",
+   "kind": "fluo",
+   "room": "s1_df",
+   "room_name": "脱衣所（女）",
+   "on": true,
+   "position": [
+    23.025,
+    3.35,
+    -14.75
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     1.2,
+     0.12
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 1.2,
+    "height": 0.12,
+    "long_axis": "x"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_70",
+   "kind": "fluo",
+   "room": "s1_df",
+   "room_name": "脱衣所（女）",
+   "on": true,
+   "position": [
+    25.275,
+    3.35,
+    -14.75
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     1.2,
+     0.12
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 1.2,
+    "height": 0.12,
+    "long_axis": "x"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_globe_71",
+   "kind": "globe",
+   "room": "s1_bm",
+   "room_name": "男湯",
+   "on": true,
+   "position": [
+    19.65,
+    3.4,
+    -18.375
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "POINT",
+    "watts": 450,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 11.4,
+    "range": 12.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_72",
+   "kind": "globe",
+   "room": "s1_bm",
+   "room_name": "男湯",
+   "on": true,
+   "position": [
+    19.65,
+    3.4,
+    -22.125
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "POINT",
+    "watts": 450,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 11.4,
+    "range": 12.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_73",
+   "kind": "globe",
+   "room": "s1_bf",
+   "room_name": "女湯",
+   "on": true,
+   "position": [
+    24.15,
+    3.4,
+    -18.375
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "POINT",
+    "watts": 450,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 11.4,
+    "range": 12.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_globe_74",
+   "kind": "globe",
+   "room": "s1_bf",
+   "room_name": "女湯",
+   "on": true,
+   "position": [
+    24.15,
+    3.4,
+    -22.125
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "POINT",
+    "watts": 450,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 11.4,
+    "range": 12.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "L_fluo_75",
+   "kind": "fluo",
+   "room": "s2_hall",
+   "room_name": "ホール",
+   "on": true,
+   "position": [
+    18.9,
+    6.45,
+    -8.125
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     0.12,
+     1.2
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 0.12,
+    "height": 1.2,
+    "long_axis": "z"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_76",
+   "kind": "fluo",
+   "room": "s2_hall",
+   "room_name": "ホール",
+   "on": true,
+   "position": [
+    18.9,
+    6.45,
+    -10.375
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     0.12,
+     1.2
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 0.12,
+    "height": 1.2,
+    "long_axis": "z"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_77",
+   "kind": "fluo",
+   "room": "s2_wet",
+   "room_name": "洗面・便所",
+   "on": true,
+   "position": [
+    24.9,
+    6.45,
+    -8.125
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     0.12,
+     1.2
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 0.12,
+    "height": 1.2,
+    "long_axis": "z"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_78",
+   "kind": "fluo",
+   "room": "s2_wet",
+   "room_name": "洗面・便所",
+   "on": true,
+   "position": [
+    24.9,
+    6.45,
+    -10.375
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     0.12,
+     1.2
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 0.12,
+    "height": 1.2,
+    "long_axis": "z"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_79",
+   "kind": "fluo",
+   "room": "s2_corr",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    18.9,
+    6.45,
+    -12.25
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     1.2,
+     0.12
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 1.2,
+    "height": 0.12,
+    "long_axis": "x"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_80",
+   "kind": "fluo",
+   "room": "s2_corr",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    21.9,
+    6.45,
+    -12.25
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     1.2,
+     0.12
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 1.2,
+    "height": 0.12,
+    "long_axis": "x"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_81",
+   "kind": "fluo",
+   "room": "s2_corr",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    24.9,
+    6.45,
+    -12.25
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     1.2,
+     0.12
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 1.2,
+    "height": 0.12,
+    "long_axis": "x"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_82",
+   "kind": "fluo",
+   "room": "s2_corrN",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    21.9,
+    6.45,
+    -14.375
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     0.12,
+     1.2
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 0.12,
+    "height": 1.2,
+    "long_axis": "z"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_83",
+   "kind": "fluo",
+   "room": "s2_corrN",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    21.9,
+    6.45,
+    -17.125
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     0.12,
+     1.2
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 0.12,
+    "height": 1.2,
+    "long_axis": "z"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_84",
+   "kind": "fluo",
+   "room": "s2_corrN",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    21.9,
+    6.45,
+    -19.875
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     0.12,
+     1.2
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 0.12,
+    "height": 1.2,
+    "long_axis": "z"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_85",
+   "kind": "fluo",
+   "room": "s2_corrN",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    21.9,
+    6.45,
+    -22.625
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     0.12,
+     1.2
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 0.12,
+    "height": 1.2,
+    "long_axis": "z"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_86",
+   "kind": "fluo",
+   "room": "s2_r1",
+   "room_name": "221",
+   "on": true,
+   "position": [
+    19.275,
+    6.45,
+    -14.75
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     1.2,
+     0.12
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 1.2,
+    "height": 0.12,
+    "long_axis": "x"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_87",
+   "kind": "fluo",
+   "room": "s2_stream",
+   "room_name": "配信部屋",
+   "on": true,
+   "position": [
+    19.275,
+    6.45,
+    -18.375
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     0.12,
+     1.2
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 0.12,
+    "height": 1.2,
+    "long_axis": "z"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_88",
+   "kind": "fluo",
+   "room": "s2_stream",
+   "room_name": "配信部屋",
+   "on": true,
+   "position": [
+    19.275,
+    6.45,
+    -22.125
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     0.12,
+     1.2
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 0.12,
+    "height": 1.2,
+    "long_axis": "z"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_89",
+   "kind": "fluo",
+   "room": "s2_r2",
+   "room_name": "222",
+   "on": true,
+   "position": [
+    24.525,
+    6.45,
+    -22.165
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     1.2,
+     0.12
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 1.2,
+    "height": 0.12,
+    "long_axis": "x"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_90",
+   "kind": "fluo",
+   "room": "s2_r3",
+   "room_name": "223",
+   "on": true,
+   "position": [
+    24.525,
+    6.45,
+    -18.5
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     1.2,
+     0.12
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 1.2,
+    "height": 0.12,
+    "long_axis": "x"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_91",
+   "kind": "fluo",
+   "room": "s2_r4",
+   "room_name": "224",
+   "on": true,
+   "position": [
+    24.525,
+    6.45,
+    -14.835
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     1.2,
+     0.12
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 1.2,
+    "height": 0.12,
+    "long_axis": "x"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_92",
+   "kind": "fluo",
+   "room": "s3_hall",
+   "room_name": "ホール",
+   "on": true,
+   "position": [
+    18.9,
+    9.55,
+    -8.125
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     0.12,
+     1.2
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 0.12,
+    "height": 1.2,
+    "long_axis": "z"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_93",
+   "kind": "fluo",
+   "room": "s3_hall",
+   "room_name": "ホール",
+   "on": true,
+   "position": [
+    18.9,
+    9.55,
+    -10.375
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     0.12,
+     1.2
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 0.12,
+    "height": 1.2,
+    "long_axis": "z"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_94",
+   "kind": "fluo",
+   "room": "s3_wet",
+   "room_name": "洗面・便所",
+   "on": true,
+   "position": [
+    24.9,
+    9.55,
+    -8.125
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     0.12,
+     1.2
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 0.12,
+    "height": 1.2,
+    "long_axis": "z"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_95",
+   "kind": "fluo",
+   "room": "s3_wet",
+   "room_name": "洗面・便所",
+   "on": true,
+   "position": [
+    24.9,
+    9.55,
+    -10.375
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     0.12,
+     1.2
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 0.12,
+    "height": 1.2,
+    "long_axis": "z"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_96",
+   "kind": "fluo",
+   "room": "s3_corr",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    18.9,
+    9.55,
+    -12.25
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     1.2,
+     0.12
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 1.2,
+    "height": 0.12,
+    "long_axis": "x"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_97",
+   "kind": "fluo",
+   "room": "s3_corr",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    21.9,
+    9.55,
+    -12.25
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     1.2,
+     0.12
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 1.2,
+    "height": 0.12,
+    "long_axis": "x"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_98",
+   "kind": "fluo",
+   "room": "s3_corr",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    24.9,
+    9.55,
+    -12.25
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     1.2,
+     0.12
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 1.2,
+    "height": 0.12,
+    "long_axis": "x"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_99",
+   "kind": "fluo",
+   "room": "s3_corrN",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    21.9,
+    9.55,
+    -14.375
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     0.12,
+     1.2
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 0.12,
+    "height": 1.2,
+    "long_axis": "z"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_100",
+   "kind": "fluo",
+   "room": "s3_corrN",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    21.9,
+    9.55,
+    -17.125
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     0.12,
+     1.2
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 0.12,
+    "height": 1.2,
+    "long_axis": "z"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_101",
+   "kind": "fluo",
+   "room": "s3_corrN",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    21.9,
+    9.55,
+    -19.875
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     0.12,
+     1.2
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 0.12,
+    "height": 1.2,
+    "long_axis": "z"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_102",
+   "kind": "fluo",
+   "room": "s3_corrN",
+   "room_name": "廊下",
+   "on": true,
+   "position": [
+    21.9,
+    9.55,
+    -22.625
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     0.12,
+     1.2
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 0.12,
+    "height": 1.2,
+    "long_axis": "z"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_103",
+   "kind": "fluo",
+   "room": "s3_r1",
+   "room_name": "231",
+   "on": true,
+   "position": [
+    19.275,
+    9.55,
+    -14.75
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     1.2,
+     0.12
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 1.2,
+    "height": 0.12,
+    "long_axis": "x"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_104",
+   "kind": "fluo",
+   "room": "s3_store",
+   "room_name": "物置・リネン庫",
+   "on": true,
+   "position": [
+    19.275,
+    9.55,
+    -18.375
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     0.12,
+     1.2
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 0.12,
+    "height": 1.2,
+    "long_axis": "z"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_105",
+   "kind": "fluo",
+   "room": "s3_store",
+   "room_name": "物置・リネン庫",
+   "on": true,
+   "position": [
+    19.275,
+    9.55,
+    -22.125
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     0.12,
+     1.2
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 0.12,
+    "height": 1.2,
+    "long_axis": "z"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_106",
+   "kind": "fluo",
+   "room": "s3_r2",
+   "room_name": "232",
+   "on": true,
+   "position": [
+    24.525,
+    9.55,
+    -22.165
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     1.2,
+     0.12
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 1.2,
+    "height": 0.12,
+    "long_axis": "x"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_107",
+   "kind": "fluo",
+   "room": "s3_r3",
+   "room_name": "233",
+   "on": true,
+   "position": [
+    24.525,
+    9.55,
+    -18.5
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     1.2,
+     0.12
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 1.2,
+    "height": 0.12,
+    "long_axis": "x"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_fluo_108",
+   "kind": "fluo",
+   "room": "s3_r4",
+   "room_name": "234",
+   "on": true,
+   "position": [
+    24.525,
+    9.55,
+    -14.835
+   ],
+   "color_linear": [
+    0.92,
+    0.96,
+    1.0
+   ],
+   "color_srgb": "#F6FAFF",
+   "blender": {
+    "type": "AREA",
+    "watts": 60,
+    "size": [
+     1.2,
+     0.12
+    ]
+   },
+   "forward": [
+    0,
+    -1,
+    0
+   ],
+   "area_size": {
+    "width": 1.2,
+    "height": 0.12,
+    "long_axis": "x"
+   },
+   "unity": {
+    "type": "Rectangle",
+    "mode": "Baked",
+    "intensity": 6.08
+   }
+  },
+  {
+   "id": "L_globe_109",
+   "kind": "globe",
+   "room": "b2",
+   "room_name": "渡り廊下",
+   "on": true,
+   "position": [
+    16.435,
+    6.1,
+    -7.9625
+   ],
+   "color_linear": [
+    1.0,
+    0.75,
+    0.5
+   ],
+   "color_srgb": "#FFE1BC",
+   "blender": {
+    "type": "POINT",
+    "watts": 50,
+    "radius": 0.12
+   },
+   "unity": {
+    "type": "Point",
+    "mode": "Baked",
+    "intensity": 1.27,
+    "range": 8.0,
+    "shadow_radius": 0.12
+   }
+  },
+  {
+   "id": "Sun",
+   "kind": "sun",
+   "room": null,
+   "room_name": "屋外",
+   "on": true,
+   "forward": [
+    -0.4394,
+    -0.6428,
+    -0.6275
+   ],
+   "color_linear": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "color_srgb": "#FFFFFF",
+   "blender": {
+    "type": "SUN",
+    "strength": 3.2,
+    "angle_deg": 2.0
+   },
+   "unity": {
+    "type": "Directional",
+    "mode": "Mixed",
+    "intensity": 1.02
+   }
+  }
+ ]
+}

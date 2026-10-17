@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>大欅旅館 試歩</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #1d1b18; color: #f1ece2;
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif; }
+  canvas { display: block; }
+  #hud { position: fixed; left: 12px; top: 12px; width: 300px; max-height: calc(100% - 24px); overflow: auto;
+    background: rgba(24, 21, 17, .82); border: 1px solid #5b4f3e; border-radius: 8px; padding: 12px 14px; font-size: 13px; line-height: 1.6; }
+  #hud h1 { font-size: 16px; margin: 0 0 6px; }
+  #hud .muted { color: #b8ad98; font-size: 12px; }
+  #spawns { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin: 8px 0; }
+  #spawns button { background: #3a3228; color: #f1ece2; border: 1px solid #6b5d48; border-radius: 4px; padding: 4px 6px;
+    font: inherit; font-size: 12px; text-align: left; cursor: pointer; }
+  #spawns button:hover { background: #4e4334; }
+  #status { font-family: Consolas, monospace; font-size: 12px; color: #d9cfb8; white-space: pre; }
+  #load { position: fixed; inset: 0; display: grid; place-items: center; font-size: 18px; pointer-events: none; }
+  kbd { background: #3a3228; border: 1px solid #6b5d48; border-radius: 3px; padding: 0 4px; font-size: 11px; }
+  #hud.min > :not(h1) { display: none; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
+  "three-mesh-bvh": "https://cdn.jsdelivr.net/npm/three-mesh-bvh@0.8.3/build/index.module.js"
+} }
+</script>
+</head>
+<body>
+<div id="load">読み込み中…</div>
+<div id="hud">
+  <h1>大欅旅館 試歩 <span class="muted">（H で隠す）</span></h1>
+  <div class="muted">VRoid 標準体型（身長 1.61m・目の高さ 1.47m）で歩く想定。</div>
+  <div id="spawns"></div>
+  <div><b>PC</b>：画面をクリックで視点操作／<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移動／<kbd>Shift</kbd> 走る／<kbd>1</kbd>〜<kbd>9</kbd>・<kbd>[</kbd><kbd>]</kbd> 出発点</div>
+  <div><b>VR</b>：左スティック 移動（握りで走る）／右スティック 30° 回転／<kbd>A</kbd> 目線を合わせ直す／<kbd>X</kbd> VRoid 目線⇔実寸／<kbd>B</kbd>・<kbd>Y</kbd> 次・前の出発点</div>
+  <div class="muted" style="margin-top:6px">重いとき：URL に <code>?scale=0.5</code>（VR の解像度。既定 0.7）。PC で影を見るなら <code>?shadows=1</code>。</div>
+  <div class="muted" style="margin-top:6px">当たり判定：壁・窓・柱は通れない。段差は 0.45m まで自動で上がる（上がり框 0.40）。</div>
+  <div id="status"></div>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { VRButton } from 'three/addons/webxr/VRButton.js';
+import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFactory.js';
+import { computeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
+THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;   // 当たり判定のレイを速くする（VR の 90fps に収める）
+THREE.Mesh.prototype.raycast = acceleratedRaycast;
+
+// ---- 体の寸法（VRoid Studio の標準モデルの実測。単位 m）
+const BODY = { height: 1.61, eye: 1.47, radius: 0.2, step: 0.45, walk: 1.4, run: 3.2 };
+const RAYS_H = [0.55, 1.0, 1.4];            // 壁を調べる高さ（足元から）。0.55 未満の段は上れる
+const params = new URLSearchParams(location.search);
+const MODEL = params.get('model') || '../OokeyakiRyokan/Stage/OokeyakiRyokan.glb';   // グレーボックスは ?model=../OokeyakiRyokan/Graybox/OokeyakiRyokan_Graybox.glb
+// 重さの調整：VR の描画解像度（?scale=0.5〜1.0、既定 0.7）・影（?shadows=1 で PC だけ有効。VR では常に切る）
+const XR_SCALE = Math.min(1, Math.max(0.3, parseFloat(params.get('scale') || '0.7')));
+const SHADOWS = params.get('shadows') === '1';
+
+// ---- 描画
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = SHADOWS;
+renderer.shadowMap.type = THREE.PCFShadowMap;
+renderer.xr.enabled = true;
+renderer.xr.setReferenceSpaceType('local-floor');
+renderer.xr.setFramebufferScaleFactor(XR_SCALE);     // GPU 4GB 級で Link と同時に動かすため、VR の解像度を落とす
+renderer.xr.setFoveation(1.0);                        // 視野の周辺を粗く描く（対応する環境だけ）
+document.body.appendChild(renderer.domElement);
+document.body.appendChild(VRButton.createButton(renderer));
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xa9c6dc);
+const rig = new THREE.Group();                       // 足元（床の高さ）。VR ではこの下にヘッドセットの位置が入る
+scene.add(rig);
+const camera = new THREE.PerspectiveCamera(72, innerWidth / innerHeight, 0.05, 400);
+camera.position.y = BODY.eye;
+rig.add(camera);
+
+scene.add(new THREE.HemisphereLight(0xe4eef7, 0xd8cdb8, 1.5));   // 下からの色を明るく（天井が茶色く沈まない＝室内の照り返しの代わり）
+const sun = new THREE.DirectionalLight(0xfff1dc, 2.2);
+sun.position.set(-18, 32, 22);                        // 南西の高い太陽（+z が南）
+sun.target.position.set(8, 0, -10);
+sun.castShadow = SHADOWS;
+sun.shadow.mapSize.set(2048, 2048);
+Object.assign(sun.shadow.camera, { left: -45, right: 45, top: 45, bottom: -45, near: 1, far: 120 });
+sun.shadow.bias = -0.0005;
+scene.add(sun, sun.target);
+
+// ---- 当たり判定
+const colliders = [];
+// 近くの当たりだけを調べる：家具を置くと当たりのメッシュが千を超え（glTF は素材ごとに分かれる）、全部にレイを撃つと 1 歩 10ms を超える。
+// 各メッシュの外接球を水平の距離で見て、体の周り NEAR_R の中にあるものだけを残す（0.5m 動くたびに選び直す）
+const NEAR_R = 2.5;
+let near = colliders, nearAt = null;
+const spheres = new Map();
+function nearColliders(p) {
+  if (nearAt && Math.hypot(p.x - nearAt.x, p.z - nearAt.z) < 0.5) return near;
+  nearAt = p.clone();
+  near = colliders.filter((o) => {
+    const s = spheres.get(o);
+    return Math.hypot(s.center.x - p.x, s.center.z - p.z) < s.radius + NEAR_R;
+  });
+  return near;
+}
+const ray = new THREE.Raycaster();
+const DOWN = new THREE.Vector3(0, -1, 0);
+const _v = new THREE.Vector3(), _n = new THREE.Vector3();
+
+function worldNormal(hit) {
+  return _n.copy(hit.face.normal).transformDirection(hit.object.matrixWorld);
+}
+
+function groundAt(p) {                               // 足元から step 上を起点に下へ。歩ける面（上向き）の高さ
+  ray.set(_v.set(p.x, p.y + BODY.step + 0.05, p.z), DOWN);   // 少し上から（段の上面ちょうどから撃つと当たらない）
+  ray.near = 0; ray.far = BODY.step + 80;
+  for (const h of ray.intersectObjects(nearColliders(p), false)) {
+    if (worldNormal(h).y > 0.5) return h.point.y;
+  }
+  return null;
+}
+
+function wallHit(p, dir, far) {
+  let best = null;
+  for (const hgt of RAYS_H) {
+    ray.set(_v.set(p.x, p.y + hgt, p.z), dir);
+    ray.near = 0; ray.far = far;
+    for (const h of ray.intersectObjects(nearColliders(p), false)) {
+      const n = worldNormal(h);
+      if (Math.abs(n.y) > 0.5) continue;           // 床・斜面・天井は壁ではない
+      if (!best || h.distance < best.t) best = { t: h.distance, n: n.clone() };
+      break;
+    }
+  }
+  return best;
+}
+
+let vy = 0;
+function moveBody(p, d, dt) {                        // p = 足元（書き換える）、d = 水平の移動量
+  d = d.clone();
+  for (let it = 0; it < 3 && d.lengthSq() > 1e-10; it++) {
+    const len = d.length(), dir = d.clone().divideScalar(len);
+    const hit = wallHit(p, dir, len + BODY.radius);
+    if (!hit) { p.add(d); break; }
+    const go = Math.min(Math.max(0, hit.t - BODY.radius), len);
+    p.addScaledVector(dir, go);
+    const n = hit.n.setY(0).normalize();
+    if (n.dot(dir) > 0) n.negate();
+    d.multiplyScalar(1 - go / len);
+    d.addScaledVector(n, -d.dot(n));                // 壁に沿って滑らせる
+  }
+  for (let k = 0; k < 8; k++) {                      // めり込みを押し戻す
+    const a = k * Math.PI / 4, dir = new THREE.Vector3(Math.cos(a), 0, Math.sin(a));
+    const hit = wallHit(p, dir, BODY.radius);
+    if (hit) p.addScaledVector(dir, -(BODY.radius - hit.t));
+  }
+  const g = groundAt(p);
+  if (g !== null) {
+    if (g >= p.y - 0.02) { p.y = g; vy = 0; }       // 段を上る・床に立つ
+    else { vy -= 9.8 * dt; p.y = Math.max(g, p.y + vy * dt); if (p.y === g) vy = 0; }
+  }
+}
+
+// ---- 出発点
+let spawns = [], spawnIdx = 0;
+const hud = document.getElementById('hud');
+const statusEl = document.getElementById('status');
+
+function headLocalYaw() {
+  return new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ').y;
+}
+
+function goSpawn(i) {
+  spawnIdx = (i + spawns.length) % spawns.length;
+  const s = spawns[spawnIdx];
+  vy = 0;
+  if (renderer.xr.isPresenting) {
+    rig.rotation.y = s.yaw - headLocalYaw();
+    rig.position.set(s.pos[0], s.pos[1], s.pos[2]);
+    rig.updateMatrixWorld(true);
+    const head = camera.getWorldPosition(new THREE.Vector3());
+    rig.position.x -= head.x - s.pos[0];
+    rig.position.z -= head.z - s.pos[2];
+  } else {
+    rig.position.set(s.pos[0], s.pos[1], s.pos[2]);
+    rig.rotation.y = s.yaw;
+    pitch = 0;
+  }
+  drawPanel();
+}
+
+// ---- VR：目の高さを VRoid（1.47m）に合わせる
+let eyeMode = 'vroid', realEye = null;
+function calibrate() {
+  if (camera.position.y > 0.8) realEye = camera.position.y;
+  applyScale();
+}
+function applyScale() {
+  const s = (eyeMode === 'vroid' && realEye) ? BODY.eye / realEye : 1;
+  rig.scale.setScalar(s);
+  drawPanel();
+}
+renderer.xr.addEventListener('sessionstart', () => {
+  sun.castShadow = false;                             // VR では影を描かない（毎フレームの影の描き直しが重い）
+  realEye = null;
+  camera.position.set(0, 0, 0);
+  setTimeout(() => { calibrate(); goSpawn(spawnIdx); }, 800);
+});
+renderer.xr.addEventListener('sessionend', () => {
+  sun.castShadow = SHADOWS;
+  rig.scale.setScalar(1);
+  camera.position.set(0, BODY.eye, 0);
+  camera.quaternion.identity();
+  goSpawn(spawnIdx);
+});
+
+// コントローラー（左手に案内板）
+const panelCanvas = document.createElement('canvas');
+panelCanvas.width = 512; panelCanvas.height = 200;
+const panelTex = new THREE.CanvasTexture(panelCanvas);
+panelTex.colorSpace = THREE.SRGBColorSpace;
+const panel = new THREE.Mesh(new THREE.PlaneGeometry(0.2, 0.078),
+  new THREE.MeshBasicMaterial({ map: panelTex, transparent: true }));
+panel.position.set(0, 0.06, -0.02);
+panel.rotation.x = -0.9;
+function drawPanel() {
+  const c = panelCanvas.getContext('2d');
+  c.clearRect(0, 0, 512, 200);
+  c.fillStyle = 'rgba(24,21,17,0.85)';
+  c.fillRect(0, 0, 512, 200);
+  c.fillStyle = '#f1ece2';
+  c.font = 'bold 40px sans-serif';
+  c.fillText(spawns[spawnIdx]?.name ?? '', 20, 58);
+  c.font = '28px sans-serif';
+  const eye = eyeMode === 'vroid' ? `VRoid 目線 ${BODY.eye}m` : `実寸（目 ${realEye ? realEye.toFixed(2) : '?'}m）`;
+  c.fillText(eye, 20, 110);
+  c.fillStyle = '#b8ad98';
+  c.font = '24px sans-serif';
+  c.fillText('A 合わせ直す  X 目線切替  B/Y 出発点', 20, 165);
+  panelTex.needsUpdate = true;
+}
+const factory = new XRControllerModelFactory();
+for (let i = 0; i < 2; i++) {
+  const grip = renderer.xr.getControllerGrip(i);
+  grip.add(factory.createControllerModel(grip));
+  rig.add(grip);
+  const ctl = renderer.xr.getController(i);
+  rig.add(ctl);
+  ctl.addEventListener('connected', (e) => { if (e.data.handedness === 'left') grip.add(panel); });
+}
+
+// ---- PC の操作
+const keys = new Set();
+let pitch = 0;
+addEventListener('keydown', (e) => {
+  keys.add(e.code);
+  if (e.code === 'KeyH') hud.classList.toggle('min');
+  if (/^Digit[1-9]$/.test(e.code)) goSpawn(+e.code.slice(5) - 1);
+  if (e.code === 'BracketRight') goSpawn(spawnIdx + 1);
+  if (e.code === 'BracketLeft') goSpawn(spawnIdx - 1);
+});
+addEventListener('keyup', (e) => keys.delete(e.code));
+renderer.domElement.addEventListener('click', () => { if (!renderer.xr.isPresenting) renderer.domElement.requestPointerLock(); });
+addEventListener('mousemove', (e) => {
+  if (document.pointerLockElement !== renderer.domElement) return;
+  rig.rotation.y -= e.movementX * 0.0022;
+  pitch = Math.max(-1.45, Math.min(1.45, pitch - e.movementY * 0.0022));
+});
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+// ---- VR の入力（ボタンは押した瞬間だけ反応）
+const prevBtn = {};
+function pressed(id, b) { const was = prevBtn[id]; prevBtn[id] = b; return b && !was; }
+let turnLatch = false;
+
+function snapTurn(ang) {
+  const head = camera.getWorldPosition(new THREE.Vector3());
+  rig.position.sub(head).applyAxisAngle(THREE.Object3D.DEFAULT_UP, ang).add(head);
+  rig.rotation.y += ang;
+}
+
+function xrInput(dt, move) {
+  const session = renderer.xr.getSession();
+  let run = false;
+  for (const src of session.inputSources) {
+    const gp = src.gamepad;
+    if (!gp) continue;
+    const ax = gp.axes.length >= 4 ? [gp.axes[2], gp.axes[3]] : [gp.axes[0], gp.axes[1]];
+    const b = (i) => !!gp.buttons[i]?.pressed;
+    if (src.handedness === 'left') {
+      if (Math.hypot(ax[0], ax[1]) > 0.15) { move.x += ax[0]; move.z += ax[1]; }
+      run = b(1);
+      if (pressed('X', b(4))) { eyeMode = eyeMode === 'vroid' ? 'real' : 'vroid'; applyScale(); }
+      if (pressed('Y', b(5))) goSpawn(spawnIdx - 1);
+    } else if (src.handedness === 'right') {
+      if (Math.abs(ax[0]) > 0.7) { if (!turnLatch) snapTurn(-Math.sign(ax[0]) * Math.PI / 6); turnLatch = true; }
+      else if (Math.abs(ax[0]) < 0.3) turnLatch = false;
+      if (pressed('A', b(4))) calibrate();
+      if (pressed('B', b(5))) goSpawn(spawnIdx + 1);
+    }
+  }
+  return run;
+}
+
+// ---- 毎フレーム
+const clock = new THREE.Clock();
+let fpsT = 0, fpsN = 0, fps = 0;
+renderer.setAnimationLoop(() => {
+  const dt = Math.min(clock.getDelta(), 0.05);
+  const move = new THREE.Vector3();
+  let run = false, yaw;
+  if (renderer.xr.isPresenting) {
+    run = xrInput(dt, move);
+    yaw = new THREE.Euler().setFromQuaternion(camera.getWorldQuaternion(new THREE.Quaternion()), 'YXZ').y;
+  } else {
+    camera.rotation.set(pitch, 0, 0, 'YXZ');
+    if (keys.has('KeyW') || keys.has('ArrowUp')) move.z -= 1;
+    if (keys.has('KeyS') || keys.has('ArrowDown')) move.z += 1;
+    if (keys.has('KeyA') || keys.has('ArrowLeft')) move.x -= 1;
+    if (keys.has('KeyD') || keys.has('ArrowRight')) move.x += 1;
+    run = keys.has('ShiftLeft') || keys.has('ShiftRight');
+    yaw = rig.rotation.y;
+  }
+  if (spawns.length) {
+    if (move.lengthSq() > 1) move.normalize();
+    move.applyAxisAngle(THREE.Object3D.DEFAULT_UP, yaw).multiplyScalar((run ? BODY.run : BODY.walk) * dt);
+    // 体の位置 = 頭の真下（VR では部屋の中を歩いた分もずれる）
+    const head = renderer.xr.isPresenting ? camera.getWorldPosition(new THREE.Vector3()) : rig.position.clone();
+    const feet = new THREE.Vector3(head.x, rig.position.y, head.z);
+    const before = feet.clone();
+    moveBody(feet, move, dt);
+    rig.position.x += feet.x - before.x;
+    rig.position.z += feet.z - before.z;
+    rig.position.y = feet.y;
+  }
+  renderer.render(scene, camera);
+  fpsN++; fpsT += dt;
+  if (fpsT > 0.5) {
+    fps = fpsN / fpsT; fpsN = 0; fpsT = 0;
+    const p = rig.position;
+    statusEl.textContent = `位置 x ${p.x.toFixed(2)}  z ${p.z.toFixed(2)}\n床の高さ ${p.y.toFixed(2)} m（土間＝0）\n` +
+      `${renderer.xr.isPresenting ? (eyeMode === 'vroid' ? 'VR・VRoid 目線' : 'VR・実寸') : 'PC'}  ${fps.toFixed(0)} fps`;
+  }
+});
+
+// ---- 読み込み
+const [spawnJson, gltf] = await Promise.all([
+  fetch('spawns.json').then((r) => r.json()),
+  new GLTFLoader().loadAsync(MODEL, (e) => {
+    if (e.total) document.getElementById('load').textContent = `読み込み中… ${Math.round(e.loaded / e.total * 100)}%`;
+  }),
+]);
+const invisible = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, visible: false });
+const tagged = (o, re) => { for (let p = o; p && p !== gltf.scene; p = p.parent) if (re.test(p.name)) return true; return false; };
+gltf.scene.traverse((o) => {
+  if (!o.isMesh) return;
+  if (o.geometry.index) o.geometry.setIndex(o.geometry.index.clone());   // glb は同じ並びの index を複数のメッシュで共有する。BVH は index を並べ替えるので分ける
+  o.geometry.computeBoundsTree();
+  if (tagged(o, /_Col$/)) { o.material = invisible; colliders.push(o); return; }
+  o.castShadow = o.receiveShadow = true;
+  if (o.material.transparent) { o.material.depthWrite = false; o.castShadow = false; }
+  if (tagged(o, /_NoCol$/) || tagged(o, /_Stairs$/)) return;   // 樹冠・階段の段（当たりは斜面で取る）
+  colliders.push(o);
+});
+scene.add(gltf.scene);
+scene.updateMatrixWorld(true);
+for (const o of colliders) {
+  if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere();
+  const s = o.geometry.boundingSphere.clone().applyMatrix4(o.matrixWorld);
+  spheres.set(o, s);
+}
+spawns = spawnJson.spawns;
+const list = document.getElementById('spawns');
+spawns.forEach((s, i) => {
+  const b = document.createElement('button');
+  b.textContent = `${i < 9 ? i + 1 : '·'} ${s.name}`;
+  b.onclick = (e) => { e.stopPropagation(); goSpawn(i); };
+  list.appendChild(b);
+});
+document.getElementById('load').remove();
+goSpawn(1);
+
+// 動作確認用（開発者ツールから）
+window.app = { THREE, scene, rig, camera, colliders, goSpawn, moveBody, groundAt, BODY, get spawns() { return spawns; } };
+</script>
+</body>
+</html>
