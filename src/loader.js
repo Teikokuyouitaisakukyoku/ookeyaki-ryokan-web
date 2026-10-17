@@ -2,6 +2,9 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
+import { VRMLookAtQuaternionProxy } from '@pixiv/three-vrm-animation';
+import { VRMAnimationLoaderPlugin, createVRMAnimationClip } from '@pixiv/three-vrm-animation';
+import { MOTIONS } from './motions.js';
 
 // ビルド時に vite.config.js が埋め込む実ファイルサイズ（バイト）。圧縮配信でも % がずれないように使う
 const SIZES = __ASSET_SIZES__;
@@ -38,16 +41,19 @@ const jsonOf = (path) => fetch(url(path)).then((r) => (r.ok ? r.json() : null)).
  * onProgress(0..1, メッセージ): ダウンロード 0〜90%、パース 90〜100%。
  */
 export async function loadAll(onProgress) {
-  const total = Object.values(FILES).reduce((s, p) => s + (SIZES[p] || 1), 0);
+  const motionList = Object.entries(MOTIONS);
+  const total = [...Object.values(FILES), ...motionList.map(([, p]) => p)].reduce((s, p) => s + (SIZES[p] || 1), 0);
   let loaded = 0;
   let parsed = 0;
-  const report = (msg) => onProgress(Math.min(0.9, (loaded / total) * 0.9) + (parsed / 4) * 0.1, msg);
+  const report = (msg) => onProgress(Math.min(0.9, (loaded / total) * 0.9) + (parsed / 5) * 0.1, msg);
   const download = (p) => fetchWithProgress(p, (n) => { loaded += n; report('読み込み中…'); });
 
-  const [stageBuf, kBuf, hBuf, sBuf, spawns, seats, nav] = await Promise.all([
+  const [stageBuf, kBuf, hBuf, sBuf, spawns, seats, nav, motionBufs] = await Promise.all([
     download(FILES.stage), download(FILES.kyokucho), download(FILES.hachi), download(FILES.shinkuro),
     jsonOf('assets/stage/spawns.json'), jsonOf('assets/stage/OokeyakiRyokan_seats.json'),
     jsonOf('assets/stage/nav.json'),
+    // モーションは 1 本読めなくても全体を止めない（その動きは手続きで代用）
+    Promise.all(motionList.map(([, p]) => download(p).catch((e) => { console.warn(e.message); return null; }))),
   ]);
 
   const parse = (loader, buf) => new Promise((ok, ng) => loader.parse(buf, '', ok, ng));
@@ -67,8 +73,25 @@ export async function loadAll(onProgress) {
     VRMUtils.combineSkeletons(gltf.scene);
     VRMUtils.rotateVRM0(vrm);
     vrm.scene.traverse((o) => { o.frustumCulled = false; });
+    if (vrm.lookAt) { // VRMA の視線トラックの受け口
+      const proxy = new VRMLookAtQuaternionProxy(vrm.lookAt);
+      proxy.name = 'lookAtQuaternionProxy';
+      vrm.scene.add(proxy);
+    }
     vrms[name] = vrm;
     parsed++; report('住人を呼んでいます…');
   }
-  return { stage, vrms, spawns: spawns.spawns, seats: seats.seats, nav };
+
+  report('動きを準備中…');
+  const vrmaLoader = new GLTFLoader();
+  vrmaLoader.register((parser) => new VRMAnimationLoaderPlugin(parser));
+  const clips = Object.fromEntries(Object.keys(vrms).map((n) => [n, {}]));
+  for (let i = 0; i < motionList.length; i++) {
+    if (!motionBufs[i]) continue;
+    const anim = (await parse(vrmaLoader, motionBufs[i])).userData.vrmAnimations?.[0];
+    if (!anim) continue;
+    for (const [n, vrm] of Object.entries(vrms)) clips[n][motionList[i][0]] = createVRMAnimationClip(anim, vrm);
+  }
+  parsed++;
+  return { stage, vrms, clips, spawns: spawns.spawns, seats: seats.seats, nav };
 }

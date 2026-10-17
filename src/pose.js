@@ -1,10 +1,15 @@
 import * as THREE from 'three';
+import { VRMHumanBoneList } from '@pixiv/three-vrm';
 
 /**
  * VRM の正規化ヒューマノイド（T ポーズ・全ボーン回転 0 が基準）に手続きで姿勢を付ける。
  * VRM1 は +Z が正面、左腕が +X。
  *   脚・腕を前後に振る = X 軸回転（+ で後ろ）、腕を下ろす = Z 軸回転（左 −、右 +）
  * 状態は weight で連続的に混ぜる: walk（歩行の振り）, sit（座り姿勢）
+ *
+ * VRMA（AnimationMixer）と手続きアニメーションはボーンごとに slerp で混ぜる。
+ *   play('名前') で VRMA へ、play(null) で手続きへ、fade 秒かけて移る。
+ * 首・頭の向き（lookYaw / lookPitch）は最後に上乗せするので、どちらの上でもこちらを向ける。
  */
 const BONES = [
   'hips', 'spine', 'chest', 'neck', 'head',
@@ -37,13 +42,15 @@ const SIT = {
 };
 
 export class Pose {
-  constructor(vrm) {
+  constructor(vrm, clips = {}) {
     this.vrm = vrm;
     this.bone = {};
     for (const n of BONES) this.bone[n] = vrm.humanoid.getNormalizedBoneNode(n);
+    this.allBones = VRMHumanBoneList.map((n) => vrm.humanoid.getNormalizedBoneNode(n)).filter(Boolean);
     this.phase = Math.random() * Math.PI * 2;  // 歩行周期
-    this.t = Math.random() * 10;                // 呼吸・視線
-    this.restHipsY = this.bone.hips.position.y; // 正規化 hips の基準高さ（ルートからの m）
+    this.t = Math.random() * 10;                // 呼吸
+    this.restHips = this.bone.hips.position.clone(); // 正規化 hips の基準位置（ルートからの m）
+    this.restHipsY = this.restHips.y;
     this.walk = 0;       // 0..1
     this.sit = 0;        // 0..1
     this.sitKind = 'chair';
@@ -51,32 +58,97 @@ export class Pose {
     this.hipsY = this.restHipsY; // 座っているとき目標とする腰の高さ（ルートからの m）
     this.lookYaw = 0;    // 首・頭で向ける角度（体に対して。+ で左）
     this.lookPitch = 0;  // + で下を向く
+
+    // VRMA
+    this.clips = clips;
+    this.mixer = new THREE.AnimationMixer(vrm.scene);
+    this.action = null;
+    this.current = null;     // 再生中の VRMA 名（null = 手続き）
+    this.procWeight = 1;     // 手続きの割合
+    this.fadeTime = 0.4;
+    this.onDone = null;
+    this.mixer.addEventListener('finished', (e) => {
+      if (e.action === this.action && this.onDone) { const f = this.onDone; this.onDone = null; f(); }
+    });
+    this._q = new THREE.Quaternion();
+    this._proc = {};
+    for (const n of BONES) this._proc[n] = new THREE.Quaternion();
   }
 
-  set(name, x, y, z) {
-    const b = this.bone[name];
-    if (b) b.quaternion.setFromEuler(_e.set(x, y, z, 'XYZ'));
+  has(name) { return name === 'proc' || !!this.clips[name]; }
+
+  /** name: VRMA 名、'proc' または null で手続き。once なら 1 回再生して onDone を呼ぶ */
+  play(name, { once = false, fade = 0.4, timeScale = 1, onDone = null } = {}) {
+    if (name === 'proc') name = null;
+    if (name && !this.clips[name]) name = null; // 読めなかったものは手続きで代用
+    this.onDone = onDone;
+    this.fadeTime = fade;
+    if (name === this.current && !once) { if (this.action) this.action.timeScale = timeScale; return; }
+    const prev = this.action;
+    if (name) {
+      const a = this.mixer.clipAction(this.clips[name]);
+      a.reset();
+      a.setLoop(once ? THREE.LoopOnce : THREE.LoopRepeat, Infinity);
+      a.clampWhenFinished = once;
+      a.timeScale = timeScale;
+      a.fadeIn(fade).play();
+      this.action = a;
+    } else {
+      this.action = null;
+      if (onDone) { this.onDone = null; onDone(); }
+    }
+    if (prev && prev !== this.action) prev.fadeOut(fade);
+    this.current = name;
   }
 
-  update(dt) {
-    this.t += dt;
+  /**
+   * VRMA の歩きの再生速度倍率。足の前後の振れ幅と周期から歩く速さを出し、speed(m/s) に合わせる。
+   * 支持脚は 1 周期の半分で振れ幅ぶん後ろへ動く → 速さ ≒ 振れ幅 × 2 × 周期数 / 長さ
+   */
+  walkTimeScale(name, speed) {
+    const clip = this.clips[name];
+    if (!clip) return 1;
+    const a = this.mixer.clipAction(clip);
+    a.reset().play();
+    const foot = this.vrm.humanoid.getNormalizedBoneNode('leftFoot');
+    const v = new THREE.Vector3();
+    const zs = [];
+    const N = 120;
+    for (let i = 0; i <= N; i++) {
+      for (const b of this.allBones) b.quaternion.identity();
+      this.bone.hips.position.copy(this.restHips);
+      this.mixer.setTime((clip.duration * i) / N);
+      this.bone.hips.position.x = this.restHips.x;
+      this.bone.hips.position.z = this.restHips.z;
+      this.vrm.scene.updateMatrixWorld(true);
+      zs.push(foot.getWorldPosition(v).z - this.vrm.scene.position.z);
+    }
+    a.stop();
+    for (const b of this.allBones) b.quaternion.identity();
+    this.bone.hips.position.copy(this.restHips);
+    const min = Math.min(...zs), max = Math.max(...zs), mean = (min + max) / 2;
+    let cycles = 0;
+    for (let i = 1; i < zs.length; i++) if (zs[i - 1] < mean && zs[i] >= mean) cycles++;
+    const clipSpeed = ((max - min) * 2 * Math.max(1, cycles)) / clip.duration;
+    return THREE.MathUtils.clamp(speed / clipSpeed, 0.5, 2);
+  }
+
+  /** 手続きの姿勢を this._proc に計算する（ボーンにはまだ書かない） */
+  procedural(dt) {
     const w = this.walk * (1 - this.sit);
     this.phase += dt * Math.PI * 2 * (this.speed / 1.35) * 0.95 * (this.walk > 0.01 ? 1 : 0);
     const s = Math.sin(this.phase), c = Math.cos(this.phase);
     const breath = Math.sin(this.t * 1.6) * 0.012;
     const sit = SIT[this.sitKind];
     const k = this.sit;
-
-    // 立ち（歩行）の基準
     const stand = {
       hips: [0, Math.sin(this.phase) * 0.06 * w, Math.sin(this.phase) * 0.03 * w],
       spine: [0.02 + breath, -s * 0.07 * w, 0],
       chest: [breath, -s * 0.07 * w, 0],
-      neck: [this.lookPitch * 0.4, this.lookYaw * 0.4, 0],
-      head: [this.lookPitch * 0.6, s * 0.05 * w + this.lookYaw * 0.6, 0],
+      neck: [0, 0, 0], head: [0, s * 0.05 * w, 0],
       leftUpperLeg: [s * 0.55 * w, 0, -0.03],
       rightUpperLeg: [-s * 0.55 * w, 0, 0.03],
-      leftLowerLeg: [Math.max(0, -c) * 0.7 * w + (s > 0 ? 0 : 0), 0, 0],
+      leftLowerLeg: [Math.max(0, -c) * 0.7 * w, 0, 0],
       rightLowerLeg: [Math.max(0, c) * 0.7 * w, 0, 0],
       leftFoot: [0, 0, 0], rightFoot: [0, 0, 0],
       leftUpperArm: [-s * 0.45 * w, 0, -1.2],
@@ -88,12 +160,49 @@ export class Pose {
     for (const n of BONES) {
       const a = stand[n] || [0, 0, 0];
       const b = sit[n];
-      if (b && k > 0) this.set(n, lerp(a[0], b[0], k), lerp(a[1], b[1], k), lerp(a[2], b[2], k));
-      else this.set(n, a[0], a[1], a[2]);
+      const e = b && k > 0
+        ? _e.set(lerp(a[0], b[0], k), lerp(a[1], b[1], k), lerp(a[2], b[2], k), 'XYZ')
+        : _e.set(a[0], a[1], a[2], 'XYZ');
+      this._proc[n].setFromEuler(e);
     }
-    // 腰の高さ: 立ちでは基準 + 歩行の上下動、座りでは座面に合わせた高さへ
-    const standY = this.restHipsY - Math.abs(c) * 0.025 * w;
-    this.bone.hips.position.y = lerp(standY, this.hipsY, k);
+    return this.restHipsY - Math.abs(c) * 0.025 * w; // 立ちの腰の高さ
+  }
+
+  update(dt) {
+    this.t += dt;
+    const standY = this.procedural(dt);
+
+    // 手続き ⇔ VRMA の割合を fade 秒で移す
+    const target = this.current ? 0 : 1;
+    const step = dt / Math.max(0.05, this.fadeTime);
+    this.procWeight += Math.max(-step, Math.min(step, target - this.procWeight));
+
+    // VRMA: 毎フレーム基準姿勢に戻してから mixer に書かせる（止めた動きのボーンが残らないように）
+    for (const b of this.allBones) b.quaternion.identity();
+    this.bone.hips.position.copy(this.restHips);
+    this.mixer.update(dt);
+    const clipY = this.bone.hips.position.y;
+
+    const pw = this.procWeight;
+    for (const n of BONES) {
+      const b = this.bone[n];
+      if (!b) continue;
+      if (pw >= 1) b.quaternion.copy(this._proc[n]);
+      else if (pw > 0) b.quaternion.slerp(this._proc[n], pw);
+    }
+
+    // 腰: 前後左右の移動は捨てる（位置は NPC 側で動かす）。高さは立ち＝混ぜる、座り＝座面に合わせる
+    const hips = this.bone.hips.position;
+    hips.x = this.restHips.x;
+    hips.z = this.restHips.z;
+    const upY = lerp(clipY, standY, pw);
+    hips.y = lerp(upY, this.hipsY, this.sit);
+
+    // こちらを見る（上乗せ）
+    if (this.lookYaw || this.lookPitch) {
+      this.bone.neck?.quaternion.multiply(this._q.setFromEuler(_e.set(this.lookPitch * 0.4, this.lookYaw * 0.4, 0, 'XYZ')));
+      this.bone.head?.quaternion.multiply(this._q.setFromEuler(_e.set(this.lookPitch * 0.6, this.lookYaw * 0.6, 0, 'XYZ')));
+    }
     this.vrm.update(dt);
   }
 }

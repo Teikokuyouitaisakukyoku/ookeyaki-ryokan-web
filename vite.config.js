@@ -8,10 +8,9 @@ const TYPES = { '.glb': 'model/gltf-binary', '.vrm': 'model/gltf-binary', '.json
 
 function assetSizes() {
   const out = {};
-  for (const sub of ['stage', 'characters']) {
-    for (const f of fs.readdirSync(path.join(ASSET_DIR, sub))) {
-      out[`assets/${sub}/${f}`] = fs.statSync(path.join(ASSET_DIR, sub, f)).size;
-    }
+  for (const f of fs.readdirSync(ASSET_DIR, { recursive: true })) {
+    const full = path.join(ASSET_DIR, f);
+    if (fs.statSync(full).isFile()) out[`assets/${f.split(path.sep).join('/')}`] = fs.statSync(full).size;
   }
   return out;
 }

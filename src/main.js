@@ -68,7 +68,7 @@ player.goSpawn(startIdx);
 let residents = null;
 const nav = world.nav && !params.get('nonav') ? new NavGraph(world.nav) : null;
 if (nav) {
-  residents = new Residents(scene, world.vrms, nav, world.seats, world.spawns);
+  residents = new Residents(scene, world.vrms, nav, world.seats, world.spawns, world.clips);
 }
 
 const startEl = $('start');
