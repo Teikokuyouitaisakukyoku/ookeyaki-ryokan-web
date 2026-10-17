@@ -29,7 +29,11 @@ function serveAssets() {
       });
     },
     closeBundle() {
-      fs.cpSync(ASSET_DIR, path.resolve('dist/assets'), { recursive: true });
+      // 元の重い舞台（OokeyakiRyokan.glb）は配信しない。軽量版 .web.glb だけを載せる
+      fs.cpSync(ASSET_DIR, path.resolve('dist/assets'), {
+        recursive: true,
+        filter: (src) => path.basename(src) !== 'OokeyakiRyokan.glb',
+      });
     },
   };
 }

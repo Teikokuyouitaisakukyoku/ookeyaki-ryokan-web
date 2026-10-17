@@ -41,6 +41,15 @@
   kbd { background: #3a3228; border: 1px solid #6b5d48; border-radius: 3px; padding: 0 5px; font-size: 12px; }
   #hud { position: fixed; left: 12px; top: 12px; z-index: 3; font-size: 12px; line-height: 1.6; color: #e6dcc6;
     background: rgba(24,21,17,.6); border-radius: 6px; padding: 6px 10px; pointer-events: none; white-space: pre; }
+  /* ---- 会話（字幕） ---- */
+  #dialog { position: fixed; left: 50%; bottom: 7vh; z-index: 4; transform: translate(-50%, 8px); opacity: 0;
+    min-width: min(520px, 86vw); max-width: 86vw; box-sizing: border-box; padding: 14px 26px 16px;
+    background: rgba(14, 12, 10, .78); border: 1px solid rgba(240, 195, 107, .45); border-radius: 10px;
+    box-shadow: 0 6px 24px rgba(0,0,0,.45); pointer-events: none; transition: opacity .25s, transform .25s; }
+  #dialog.show { opacity: 1; transform: translate(-50%, 0); }
+  #dialog .who { display: inline-block; margin-bottom: 6px; padding: 1px 12px; border-radius: 4px;
+    background: #7a4a1c; color: #fbe9c6; font-size: 14px; letter-spacing: .1em; }
+  #dialog .line { font-size: 22px; line-height: 1.6; color: #fff; text-shadow: 0 1px 3px #000; }
   #cross { position: fixed; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px; border-radius: 50%;
     background: rgba(255,255,255,.7); z-index: 2; pointer-events: none; }
 </style>
@@ -49,6 +58,7 @@
 <canvas id="view"></canvas>
 <div id="cross"></div>
 <div id="hud"></div>
+<div id="dialog"><div class="who"></div><div class="line"></div></div>
 <div id="start"><div class="card">
   <h2>大欅旅館</h2>
   <div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移動　<kbd>Shift</kbd> 走る　マウス 視点　<kbd>Esc</kbd> カーソルを戻す</div>

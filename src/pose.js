@@ -49,6 +49,8 @@ export class Pose {
     this.sitKind = 'chair';
     this.speed = 0;      // 実際の移動速度(m/s)。歩幅に反映
     this.hipsY = this.restHipsY; // 座っているとき目標とする腰の高さ（ルートからの m）
+    this.lookYaw = 0;    // 首・頭で向ける角度（体に対して。+ で左）
+    this.lookPitch = 0;  // + で下を向く
   }
 
   set(name, x, y, z) {
@@ -70,7 +72,8 @@ export class Pose {
       hips: [0, Math.sin(this.phase) * 0.06 * w, Math.sin(this.phase) * 0.03 * w],
       spine: [0.02 + breath, -s * 0.07 * w, 0],
       chest: [breath, -s * 0.07 * w, 0],
-      neck: [0, 0, 0], head: [0, s * 0.05 * w, 0],
+      neck: [this.lookPitch * 0.4, this.lookYaw * 0.4, 0],
+      head: [this.lookPitch * 0.6, s * 0.05 * w + this.lookYaw * 0.6, 0],
       leftUpperLeg: [s * 0.55 * w, 0, -0.03],
       rightUpperLeg: [-s * 0.55 * w, 0, 0.03],
       leftLowerLeg: [Math.max(0, -c) * 0.7 * w + (s > 0 ? 0 : 0), 0, 0],

@@ -3,7 +3,7 @@ import { loadAll } from './loader.js';
 import { Collision } from './collision.js';
 import { Player } from './player.js';
 import { NavGraph } from './nav.js';
-import { Residents } from './npc.js';
+import { Residents, TALK } from './npc.js';
 
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
@@ -81,6 +81,19 @@ loading.classList.add('done');
 setTimeout(() => loading.remove(), 800);
 startEl.classList.add('show');
 
+// ---- 会話ダイアログ（正面まで来た住人のせりふ）
+const dialog = $('dialog');
+let talking = null;
+function showTalk(r) {
+  if (r === talking) return;
+  talking = r;
+  if (!r) { dialog.classList.remove('show'); return; }
+  const t = TALK[r.name];
+  dialog.querySelector('.who').textContent = t.name;
+  dialog.querySelector('.line').textContent = `「${t.line}」`;
+  dialog.classList.add('show');
+}
+
 // ---- 毎フレーム
 const hud = $('hud');
 const clock = new THREE.Clock();
@@ -88,7 +101,8 @@ let fpsT = 0, fpsN = 0;
 renderer.setAnimationLoop(() => {
   const dt = Math.min(clock.getDelta(), 0.05);
   player.update(dt);
-  residents?.update(dt);
+  const talker = residents?.update(dt, camera.position, camera);
+  showTalk(talker);
   renderer.render(scene, camera);
   fpsN++; fpsT += dt;
   if (fpsT > 0.5) {

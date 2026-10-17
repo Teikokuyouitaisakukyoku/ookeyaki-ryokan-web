@@ -1,18 +1,21 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
 
 // ビルド時に vite.config.js が埋め込む実ファイルサイズ（バイト）。圧縮配信でも % がずれないように使う
 const SIZES = __ASSET_SIZES__;
 
 export const FILES = {
-  stage: 'assets/stage/OokeyakiRyokan.glb',
+  stage: 'assets/stage/OokeyakiRyokan.web.glb', // npm run optimize-stage で元の .glb から作る軽量版
   kyokucho: 'assets/characters/kyokucho.vrm',
   hachi: 'assets/characters/hachi.vrm',
   shinkuro: 'assets/characters/shinkuro.vrm',
 };
 
 const url = (p) => new URL(p, document.baseURI).href;
+// 開発用: ?stage=full で軽量化前の舞台を読む（見た目・当たりの比較用。本番には載せていない）
+if (new URLSearchParams(location.search).get('stage') === 'full') FILES.stage = 'assets/stage/OokeyakiRyokan.glb';
 
 async function fetchWithProgress(path, onBytes) {
   const res = await fetch(url(path));
@@ -50,7 +53,8 @@ export async function loadAll(onProgress) {
   const parse = (loader, buf) => new Promise((ok, ng) => loader.parse(buf, '', ok, ng));
 
   report('舞台を組み立て中…');
-  const stage = (await parse(new GLTFLoader(), stageBuf)).scene;
+  const stageLoader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
+  const stage = (await parse(stageLoader, stageBuf)).scene;
   parsed++; report('住人を呼んでいます…');
 
   const vrmLoader = new GLTFLoader();
