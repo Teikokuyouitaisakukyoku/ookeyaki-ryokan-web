@@ -18,10 +18,10 @@ const NOTICE_R = 3.0;         // この距離まで近づくと立ち止まっ�
 const NOTICE_OUT = 3.6;       // 離れたら元の動きに戻る距離
 const TALK_R = 1.4;           // 正面のこの距離で会話
 export const TALK = {
-  // line: 話しかけたとき / pat: 会話中に頭をクリックしたとき
-  kyokucho: { name: '局長', line: 'どうしたの？', pat: 'なにすんのよ！ セクハラよ！ セクハラ！' },
-  hachi: { name: 'Hachi', line: 'どうされましたか？', pat: 'えっと……どうも、ありがとうございます？' },
-  shinkuro: { name: '真九郎', line: 'どうしたのですん？', pat: 'えへへ、くすぐったいですん……' },
+  // name: 表示名 / pat: 会話中に頭をクリックしたとき（通常モードの点カーソル）。会話の文面は lines.js
+  kyokucho: { name: '局長', pat: 'なにすんのよ！ セクハラよ！ セクハラ！' },
+  hachi: { name: 'Hachi', pat: 'えっと……どうも、ありがとうございます？' },
+  shinkuro: { name: '真九郎', pat: 'えへへ、くすぐったいですん……' },
 };
 export { NOTICE_OUT };
 
