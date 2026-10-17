@@ -2,6 +2,9 @@
  * 歩行グラフ。nav.json は scripts/build-nav.mjs が舞台の当たり判定から事前に作る。
  *   cell: 格子の幅(m) / nodes: [ix, iz, y] / edges: 隣接ノード番号の組（平坦配列）
  */
+const INDOOR_Y = 0.2;  // これ以上の床は館内（靴を脱ぐ）
+const CROSS_COST = 15; // 館内 ⇔ 外の出入り 1 回の重み(m)
+
 export class NavGraph {
   constructor(data) {
     this.cell = data.cell;
@@ -31,7 +34,11 @@ export class NavGraph {
     return best;
   }
 
-  /** A*。ノード番号の列を返す（到達不能なら null） */
+  /**
+   * A*。ノード番号の列を返す（到達不能なら null）。
+   * 館内（床 0.2m 以上）と土間・屋外の境目をまたぐたびに CROSS_COST(m) を足し、
+   * 外から外へ行くのに館内を通り抜ける（靴を何度も脱ぎ履きする）ような経路を避ける
+   */
   path(from, to) {
     if (from === to) return [from];
     const N = this.nodes;
@@ -74,7 +81,8 @@ export class NavGraph {
       if (closed[u]) continue;
       closed[u] = 1;
       for (const v of this.adj[u]) {
-        const w = g[u] + Math.hypot(N[u].x - N[v].x, N[u].z - N[v].z, N[u].y - N[v].y);
+        const cross = (N[u].y < INDOOR_Y) !== (N[v].y < INDOOR_Y) ? CROSS_COST : 0;
+        const w = g[u] + Math.hypot(N[u].x - N[v].x, N[u].z - N[v].z, N[u].y - N[v].y) + cross;
         if (w < g[v]) { g[v] = w; prev[v] = u; push([w + h(v), v]); }
       }
     }

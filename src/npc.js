@@ -11,7 +11,10 @@ const SIT_TIME = 0.9;         // 座る・立つの遷移秒
 const rand = ([a, b]) => a + Math.random() * (b - a);
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
 // 靴: 館内では脱ぐ。足元がこの高さより低い（土間・屋外）ときだけ履く。Hachi は靴が肌に描いてあるので対象外
+// 踏み石・沓脱石など途中の高さで脱ぎ履きを繰り返さないよう、履くのは SHOE_ON より下へ、脱ぐのは SHOE_OFF より上へ行くとき
 const SHOE_Y = 0.2;
+const SHOE_ON = 0.1;
+const SHOE_OFF = 0.3;
 const SHOE_WEARERS = ['kyokucho', 'shinkuro'];
 const SHOE_SWAP = 0.45;       // しゃがむ動きのこの割合のところで靴を付け外しする
 const PULL_SPEED = 2.2;        // 引っ張られて動く最大速度(m/s)
@@ -249,7 +252,7 @@ class Resident {
     const speed = Math.hypot(pos.x - before.x, pos.z - before.z) / dt;
     p.walk += ((speed > 0.1 ? 1 : 0) - p.walk) * Math.min(1, dt * 8);
     p.speed = speed;
-    if (this.needShoeChange(pos.y)) this.setShoes(pos.y < SHOE_Y); // 引っ張られて土間に降りたときは、その場で付け外し
+    if (this.needShoeChange(pos.y)) this.setShoes(!this.shoesOn); // 引っ張られて土間に降りたときは、その場で付け外し
   }
 
   endDrag() {
@@ -314,7 +317,7 @@ class Resident {
   }
 
   /** 次に踏む場所（y）で靴を履いているべきか違うなら、立ち止まってしゃがみ、靴を脱ぐ・履く */
-  needShoeChange(y) { return this.shoes.length > 0 && (y < SHOE_Y) !== this.shoesOn; }
+  needShoeChange(y) { return this.shoes.length > 0 && (this.shoesOn ? y > SHOE_OFF : y < SHOE_ON); }
 
   beginShoeChange() {
     this.state = 'shoes';
