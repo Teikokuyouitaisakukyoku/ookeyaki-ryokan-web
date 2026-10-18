@@ -61,4 +61,12 @@ export const STYLE = {
     pat: 'shy',
     chairIdle: ['proc', 'sitIdle'],
   },
+  ichimokuryouko: {
+    walk: 'walkFemale',
+    idle: ['proc', 'idleNormal', 'idleFidget'],
+    gesture: ['neckRoll', 'yawn', 'hairEar'], // PC 仕事の肩こり・夜更かし
+    greet: 'bowLight',
+    pat: 'shy',
+    chairIdle: ['sitIdle', 'proc'],
+  },
 };

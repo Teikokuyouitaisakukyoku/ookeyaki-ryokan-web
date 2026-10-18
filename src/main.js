@@ -1,8 +1,8 @@
 import * as THREE from 'three';
-import { loadAll } from './loader.js';
+import { loadAll, loadResident } from './loader.js';
 import { Collision } from './collision.js';
 import { applyStageEdits, setupNightProps } from './stage-edits.js';
-import { now, inHours, setTime } from './schedule.js';
+import { now, inHours, setTime, ROSTER, awayAt } from './schedule.js';
 import { Sky } from './sky.js';
 import { batchStage } from './batch.js';
 import { Player } from './player.js';
@@ -69,7 +69,8 @@ for (let i = 0; i < 14; i++) {
 // ---- 読み込み
 let world;
 try {
-  world = await loadAll(showProgress);
+  const away = awayAt(now()); // 出かけている住人は読み込まない（あとで帰ってきたときに読む）
+  world = await loadAll(showProgress, ROSTER.filter((n) => n !== away));
 } catch (e) {
   $('msg').textContent = `読み込みに失敗しました: ${e.message}`;
   throw e;
@@ -88,7 +89,7 @@ player.goSpawn(startIdx);
 let residents = null;
 const nav = world.nav && !params.get('nonav') ? new NavGraph(world.nav) : null;
 if (nav) {
-  residents = new Residents(scene, world.vrms, nav, world.seats, world.spawns, world.clips, collision);
+  residents = new Residents(scene, world.vrms, nav, world.seats, world.spawns, world.clips, collision, (name) => loadResident(name, world.anims));
 }
 
 const startEl = $('start');

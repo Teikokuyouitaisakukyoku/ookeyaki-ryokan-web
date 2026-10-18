@@ -42,3 +42,20 @@ export function nightOf(d) {
   const t = new Date(d.getTime() - 12 * 3600e3);
   return `${t.getFullYear()}-${t.getMonth()}-${t.getDate()}`;
 }
+
+/**
+ * 館にいるのは同時に 3 人まで（読み込みとメモリを 3 人分に抑える）。残りのひとりは出かけていて、玄関から出入りする。
+ *   夜（23〜5 時）: 市目瞭子が自室（203）にこもる（舞台には出ない）。ほかの 3 人は時間割どおり寝る・待機する
+ *   昼（5〜23 時）: 2 時間ごとに OUT_ORDER の順でひとりずつ出かける（日によって順番がずれる）
+ */
+export const ROSTER = ['kyokucho', 'hachi', 'shinkuro', 'ichimokuryouko'];
+export const MAX_PRESENT = 3;
+const OUT_ORDER = ['ichimokuryouko', 'shinkuro', 'hachi', 'kyokucho'];
+
+/** 時刻 d に出かけている住人 */
+export function awayAt(d) {
+  if (inHours(d, 23, 5)) return 'ichimokuryouko';
+  const block = Math.floor((d.getHours() - 5) / 2);
+  const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 864e5);
+  return OUT_ORDER[(block + day) % OUT_ORDER.length];
+}

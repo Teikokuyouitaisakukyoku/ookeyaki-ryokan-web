@@ -42,4 +42,15 @@ export const ROUTES = {
     { at: '広間' },
     { wait: [3, 5] },
   ],
+  ichimokuryouko: [
+    { seat: 'Seat_Room203_01', stay: [25, 40] }, // 自室（203）の PC
+    { at: '2階 廊下' },
+    { wait: [2, 4] },
+    { seat: 'Seat_Office_02', stay: [15, 25] }, // 対策局サイトの更新
+    { seat: 'Seat_Counter_02', stay: [10, 20] }, // おやつのプリン
+    { at: '縁側' },
+    { wait: [4, 7] },
+    { at: '中庭' },
+    { wait: [4, 6] },
+  ],
 };
