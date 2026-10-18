@@ -4,6 +4,7 @@ import { Collision } from './collision.js';
 import { applyStageEdits, setupNightProps } from './stage-edits.js';
 import { now, inHours, setTime } from './schedule.js';
 import { Sky } from './sky.js';
+import { batchStage } from './batch.js';
 import { Player } from './player.js';
 import { NavGraph } from './nav.js';
 import { Residents } from './npc.js';
@@ -33,7 +34,9 @@ const sun = new THREE.DirectionalLight(0xfff1dc, 2.2);
 sun.position.set(-18, 32, 22);
 sun.target.position.set(8, 0, -10);
 scene.add(sun, sun.target);
-const sky = new Sky(scene, hemi, sun); // 時刻で空の明るさと色を変える
+const lamp = new THREE.AmbientLight();
+scene.add(lamp);
+const sky = new Sky(scene, hemi, sun, lamp); // 時刻で空の明るさと色・館内の灯りを変える
 sky.update(now());
 
 addEventListener('resize', () => {
@@ -76,6 +79,7 @@ scene.add(world.stage);
 const collision = new Collision(world.stage);
 const setNight = setupNightProps(world.stage, collision);
 setNight(inHours(now(), 23, 5));
+if (!params.has('nobatch')) scene.add(batchStage(world.stage, setNight.objects)); // 描画をまとめる（?nobatch で無効）
 
 const player = new Player(camera, canvas, collision, world.spawns);
 const startIdx = Math.max(0, world.spawns.findIndex((s) => s.name.includes('玄関土間')));

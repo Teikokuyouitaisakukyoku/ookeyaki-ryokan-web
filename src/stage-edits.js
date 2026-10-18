@@ -36,11 +36,13 @@ export function setupNightProps(stage, collision) {
   const meshes = [];
   for (const o of stash) o.traverse((m) => { if (m.isMesh) meshes.push(m); });
   let night = null;
-  return (isNight) => {
+  const setNight = (isNight) => {
     if (isNight === night) return;
     night = isNight;
     futon.visible = isNight;
     for (const o of stash) o.visible = !isNight;
     collision.setActive(meshes, !isNight);
   };
+  setNight.objects = [futon, ...stash]; // 表示を切り替える部品（描画をまとめない）
+  return setNight;
 }
