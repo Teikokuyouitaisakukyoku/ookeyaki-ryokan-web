@@ -7,6 +7,8 @@ import * as THREE from 'three';
  * 各時刻の見え方。at = 日の出（rise）・日の入り（set）からの時間（時）、sky = 背景、
  * hemi = 空の光 [空側の色, 地面側の色, 強さ]、sun = 日光（夜は月明かり）[色, 強さ]
  */
+// 館内の灯り: 夕方から点いて、消灯（23 時）で消える。消えたあとは月明かりだけの暗さ
+const LAMP = { color: 0xffe2b8, intensity: 0.9, on: -0.6, fadeIn: 1.5, off: 23, fadeOut: 0.25 }; // on: 日の入りからの時間（時）
 const KEYS = [
   { from: 'rise', at: -1.2, sky: 0x0d1628, hemi: [0x46557a, 0x1f1d26, 0.6], sun: [0x9fb4e0, 0.35] }, // 夜
   { from: 'rise', at: -0.4, sky: 0x3a4466, hemi: [0x7a7fa0, 0x3a3440, 0.8], sun: [0xc0a8c8, 0.5] }, // 明け方
@@ -30,8 +32,9 @@ const _a = new THREE.Color(), _b = new THREE.Color();
 const mix = (out, x, y, t) => out.copy(_a.setHex(x)).lerp(_b.setHex(y), t);
 
 export class Sky {
-  constructor(scene, hemi, sun) {
-    Object.assign(this, { scene, hemi, sun });
+  constructor(scene, hemi, sun, lamp) {
+    Object.assign(this, { scene, hemi, sun, lamp });
+    lamp.color.setHex(LAMP.color);
     this.center = sun.target.position.clone();
     this.dist = sun.position.distanceTo(this.center);
   }
@@ -53,6 +56,8 @@ export class Sky {
     this.hemi.intensity = THREE.MathUtils.lerp(a.hemi[2], b.hemi[2], t);
     mix(this.sun.color, a.sun[0], b.sun[0], t);
     this.sun.intensity = THREE.MathUtils.lerp(a.sun[1], b.sun[1], t);
+    const lit = Math.min((h - set - LAMP.on) / LAMP.fadeIn, (LAMP.off - h) / LAMP.fadeOut);
+    this.lamp.intensity = LAMP.intensity * THREE.MathUtils.smoothstep(lit, 0, 1);
 
     // 日光の向き: 日の出に東の低い位置、正午ごろ高く、日の入りに西の低い位置。夜は月として高めに置く
     const day = THREE.MathUtils.clamp((h - rise) / (set - rise), 0, 1);

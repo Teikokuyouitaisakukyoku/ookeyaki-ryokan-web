@@ -34,7 +34,9 @@ const sun = new THREE.DirectionalLight(0xfff1dc, 2.2);
 sun.position.set(-18, 32, 22);
 sun.target.position.set(8, 0, -10);
 scene.add(sun, sun.target);
-const sky = new Sky(scene, hemi, sun); // 時刻で空の明るさと色を変える
+const lamp = new THREE.AmbientLight();
+scene.add(lamp);
+const sky = new Sky(scene, hemi, sun, lamp); // 時刻で空の明るさと色・館内の灯りを変える
 sky.update(now());
 
 addEventListener('resize', () => {
