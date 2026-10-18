@@ -4,6 +4,7 @@ import { Collision } from './collision.js';
 import { applyStageEdits, setupNightProps } from './stage-edits.js';
 import { now, inHours, setTime } from './schedule.js';
 import { Sky } from './sky.js';
+import { batchStage } from './batch.js';
 import { Player } from './player.js';
 import { NavGraph } from './nav.js';
 import { Residents } from './npc.js';
@@ -76,6 +77,7 @@ scene.add(world.stage);
 const collision = new Collision(world.stage);
 const setNight = setupNightProps(world.stage, collision);
 setNight(inHours(now(), 23, 5));
+if (!params.has('nobatch')) scene.add(batchStage(world.stage, setNight.objects)); // 描画をまとめる（?nobatch で無効）
 
 const player = new Player(camera, canvas, collision, world.spawns);
 const startIdx = Math.max(0, world.spawns.findIndex((s) => s.name.includes('玄関土間')));
