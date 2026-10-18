@@ -139,6 +139,45 @@ class Resident {
     this.setBlink(1);
   }
 
+  /**
+   * 読み込んだ時刻に、道順のどこにいるかを時計から決めて置く（毎回同じ場所から始まらないように）。
+   * 各手順の所要時間（歩く時間 + 座る・立ち止まる時間の平均）で道順 1 周の長さを出し、0 時からの経過秒で何周目のどこかを決める
+   */
+  placeByClock(d) {
+    const nav = this.world.nav, steps = this.script;
+    const mean = ([a, b]) => (a + b) / 2;
+    const targets = steps.map((st) => (st.at || st.seat ? this.resolve(st) : null));
+    let last = [...targets].reverse().find(Boolean).node; // 1 周前の最後の場所から始める
+    const plan = steps.map((st, i) => {
+      const from = last;
+      if (!targets[i]) return { from, walk: 0, stay: mean(st.wait) };
+      const path = nav.path(from, targets[i].node) || [from];
+      let len = 0;
+      for (let k = 1; k < path.length; k++) len += this.nodePos(path[k]).distanceTo(this.nodePos(path[k - 1]));
+      last = targets[i].node;
+      return { from, path, walk: len / WALK_SPEED, stay: st.seat ? mean(st.stay || [10, 20]) + SIT_TIME * 2 : 0 };
+    });
+    const cycle = plan.reduce((sum, q) => sum + q.walk + q.stay, 0);
+    let t = ((d.getHours() * 60 + d.getMinutes()) * 60 + d.getSeconds()) % cycle;
+    for (const [i, q] of plan.entries()) {
+      if (t < q.walk) { // 次の場所へ歩いている途中
+        this.place(q.path[Math.floor((t / q.walk) * (q.path.length - 1))]);
+        this.step = i - 1;
+        return this.nextStep();
+      }
+      t -= q.walk;
+      if (t < q.stay) { // 座っている・立ち止まっている途中（残りの時間だけ続ける）
+        this.step = i;
+        if (steps[i].seat) { this.place(targets[i].node); this.sitNow(targets[i].seat, q.stay - t); }
+        else { this.place(q.from); this.state = 'idle'; this.timer = q.stay - t; this.startIdle(); }
+        return;
+      }
+      t -= q.stay;
+    }
+    this.place(last);
+    this.nextStep();
+  }
+
   nodePos(i) { const n = this.world.nav.nodes[i]; return new THREE.Vector3(n.x, n.y, n.z); }
 
   setBlink(v) { this.vrm.expressionManager?.setValue('blink', v); }
@@ -507,6 +546,15 @@ class Resident {
   }
 
   // ---- 着席
+  /** 読み込んだ時点で座っている: 座った姿勢で置き、hold 秒後に立つ */
+  sitNow(seat, hold) {
+    this.seat = seat;
+    this.stay = [hold, hold];
+    this.beginSit();
+    this.seatT = 1;
+    this.pose.sit = 1;
+  }
+
   beginSit() {
     const s = this.seat;
     this.state = 'sitting';
@@ -565,13 +613,12 @@ export class Residents {
     this.list = [];
     for (const [name, vrm] of Object.entries(vrms)) {
       const r = this.add(name, vrm, clips[name] || {});
-      // 読み込んだ時刻の時間割で置く: 就寝中なら布団の上、自室待機なら自室の席、ほかは道順の最初の場所
+      // 読み込んだ時刻の時間割で置く: 就寝中なら布団の上、自室待機なら自室の席、ほかは時計から決めた道順の途中
       if (r.mode === 'sleep') r.sleepNow();
-      else {
-        const first = r.mode === 'room' ? { seat: r.sched.seat } : ROUTES[name].find((st) => st.at || st.seat);
-        r.place(r.resolve(first).node);
+      else if (r.mode === 'room') {
+        r.place(r.resolve({ seat: r.sched.seat }).node);
         r.nextStep();
-      }
+      } else r.placeByClock(now());
     }
   }
 
