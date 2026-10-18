@@ -52,6 +52,19 @@ export const TOUCH = {
     pull: { line: 'わわっ、どこ行くですかん！？ 美味しいものですかん！？' },
     wake: { line: 'ふぁ……もう朝ですかん……？' },
   },
+  ichimokuryouko: { // 夜は自室にこもっていて舞台にいないので wake はない
+    head: { line: 'なでられるの、ひさしぶりです。悪い気はしないですね', motion: 'shy' },
+    chestR: { line: 'そこは交渉の余地なしです', motion: 'pout' },
+    chestL: { line: 'そこは交渉の余地なしです', motion: 'pout' },
+    belly: { line: 'さっきプリンを三つ食べたところです。見なかったことにしてください', motion: 'shy' },
+    legR: { line: 'わ、びっくりしました。足元に何かいましたか', motion: 'surprise' },
+    legL: { line: 'わ、びっくりしました。足元に何かいましたか', motion: 'surprise' },
+    armR: { line: 'はい、なんでしょう', motion: 'tilt' },
+    armL: { line: 'はい、なんでしょう', motion: 'tilt' },
+    handR: { line: '手、ですか。乙女ゲーなら、ここで好感度が上がるところですね', motion: 'shy' },
+    handL: { line: '手、ですか。乙女ゲーなら、ここで好感度が上がるところですね', motion: 'shy' },
+    pull: { line: 'どこへ行くんですか。外に出るなら、お面を取ってこないと' },
+  },
 };
 
 /** つかんで引っ張れる部位と、そのときに伸ばす腕 */

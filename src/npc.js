@@ -1,8 +1,9 @@
 import * as THREE from 'three';
+import { VRMUtils } from '@pixiv/three-vrm';
 import { Pose, BREATH } from './pose.js';
 import { ROUTES } from './routes.js';
 import { STYLE } from './motions.js';
-import { SCHEDULE, BEDS, now, inHours, nightOf } from './schedule.js';
+import { SCHEDULE, BEDS, now, inHours, nightOf, ROSTER, MAX_PRESENT, awayAt } from './schedule.js';
 import { TOUCH } from './touch.js';
 import { findShoes } from './shoes.js';
 
@@ -11,12 +12,12 @@ const TURN_RATE = 6;          // rad/s
 const SIT_TIME = 0.9;         // 座る・立つの遷移秒
 const rand = ([a, b]) => a + Math.random() * (b - a);
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
-// 靴: 館内では脱ぐ。足元がこの高さより低い（土間・屋外）ときだけ履く（3 人とも）
+// 靴: 館内では脱ぐ。足元がこの高さより低い（土間・屋外）ときだけ履く（全員）
 // 踏み石・沓脱石など途中の高さで脱ぎ履きを繰り返さないよう、履くのは SHOE_ON より下へ、脱ぐのは SHOE_OFF より上へ行くとき
 const SHOE_Y = 0.2;
 const SHOE_ON = 0.1;
 const SHOE_OFF = 0.3;
-const SHOE_WEARERS = ['kyokucho', 'shinkuro', 'hachi'];
+const SHOE_WEARERS = ['kyokucho', 'shinkuro', 'hachi', 'ichimokuryouko'];
 const SHOE_SWAP = 0.45;       // しゃがむ動きのこの割合のところで靴を付け外しする
 const PULL_SPEED = 2.2;        // 引っ張られて動く最大速度(m/s)
 const ARM_LEN = 0.55;         // つかまれた手と体の距離
@@ -28,11 +29,14 @@ const TALK_R = 1.4;           // 正面のこの距離で会話
 const NOTICE_WAIT = 4;        // 気づいたあと、この秒数プレイヤーが近づいてこなければ元の動きに戻る
 const NEAR_STEP = 0.3;        // これだけ近づくと「近づいてきた」として待ち時間を数え直す
 const RENOTICE = 0.5;         // 見るのをやめたあと、そこからさらにこれだけ近づかれたらまた気づく
+const DOOR = '玄関前（坂道）'; // 出かける・帰ってくる場所
+const DOOR_CLEAR = 8;         // プレイヤーがこれより離れているときだけ、玄関先で消える・現れる
 export const TALK = {
   // name: 表示名 / pat: 会話中に頭をクリックしたとき（通常モードの点カーソル）。会話の文面は lines.js
   kyokucho: { name: '局長', pat: 'なにすんのよ！ セクハラよ！ セクハラ！' },
   hachi: { name: 'Hachi', pat: 'えっと……どうも、ありがとうございます？' },
   shinkuro: { name: '真九郎', pat: 'えへへ、くすぐったいですん……' },
+  ichimokuryouko: { name: '瞭子', pat: 'なでられるの、ひさしぶりです。悪い気はしないですね' },
 };
 export { NOTICE_OUT };
 
@@ -79,6 +83,7 @@ class Resident {
     this.sched = SCHEDULE[name] || null;
     this.mode = 'routine';   // routine | sleep | room
     this.wokeNight = null;   // 起こされた夜（その夜はもう寝ない）
+    this.leaving = false;    // 出かける番: 今の動作の区切りで玄関先へ向かい、そこで消える（state = 'away' で待つ）
     this.root.rotation.order = 'YXZ'; // 向き → 傾き（横になる）の順
     this.shoes = SHOE_WEARERS.includes(name) ? findShoes(vrm) : [];
     this.shoesOn = true;
@@ -102,6 +107,13 @@ class Resident {
     else if (this.state === 'walk') this.nextStep();
     else if (this.state === 'sit-stay') this.timer = 0;
     else if (this.state === 'sleeping') this.wake();
+  }
+
+  /** 出かけるのをやめた（時刻を戻したときなど） */
+  cancelLeave() {
+    this.leaving = false;
+    if (this.state === 'away') { this.state = 'idle'; this.timer = 0.01; }
+    else if (this.state === 'walk' && this.exiting) this.nextStep();
   }
 
   setupBed(b) {
@@ -304,13 +316,13 @@ class Resident {
   endAttend() {
     this.attending = false;
     if (this.state === 'walk') this.pose.play(this.style.walk, { timeScale: this.walkScale, fade: 0.4 });
-    else if (this.state === 'idle') this.startIdle();
+    else if (this.state === 'idle' || this.state === 'away') this.startIdle();
   }
 
   /** 首と目をプレイヤーへ。立っているなら体ごと向く */
   attend(dt, eye) {
     const p = this.pose, pos = this.root.position;
-    const standing = this.state === 'walk' || this.state === 'idle';
+    const standing = this.state === 'walk' || this.state === 'idle' || this.state === 'away';
     if (standing) {
       p.walk = Math.max(0, p.walk - dt * 5);
       this.yaw = angleLerp(this.yaw, this.toward, Math.min(1, 4 * dt));
@@ -378,6 +390,7 @@ class Resident {
   }
 
   nextStep() {
+    if (this.leaving) return this.go({ at: DOOR, exit: true });
     if (this.mode === 'sleep') return this.go({ bed: true });
     if (this.mode === 'room') return this.go({ seat: this.sched.seat, stay: 'forever' });
     this.step = (this.step + 1) % this.script.length;
@@ -400,6 +413,7 @@ class Resident {
     this.pi = 1;
     this.seat = seat;
     this.toBed = !!st.bed;
+    this.exiting = !!st.exit;
     this.stay = st.stay;
     this.state = 'walk';
     this.pose.play(this.style.walk, { timeScale: this.walkScale, fade: 0.35 });
@@ -474,9 +488,12 @@ class Resident {
       p.speed = WALK_SPEED;
       if (this.pi >= this.path.length) {
         if (this.toBed) this.beginLie();
+        else if (this.exiting) { this.state = 'away'; this.startIdle(); } // 玄関先で、消えられるまで待つ
         else if (this.seat) this.beginSit();
         else { this.state = 'idle'; this.timer = 0.01; this.nextStep(); }
       }
+    } else if (this.state === 'away') {
+      p.walk = Math.max(0, p.walk - dt * 4);
     } else if (this.state === 'shoes') {
       this.updateShoeChange(dt);
     } else if (this.state === 'sitting' || this.state === 'sit-stay' || this.state === 'standing') {
@@ -539,21 +556,68 @@ class Resident {
 }
 
 export class Residents {
-  constructor(scene, vrms, nav, seats, spawns, clips = {}, collision = null) {
+  /** vrms / clips: 読み込み時にいる住人。load(name) → { vrm, clips }: あとから登場する住人を読み込む */
+  constructor(scene, vrms, nav, seats, spawns, clips = {}, collision = null, load = null) {
+    this.scene = scene;
+    this.world = { nav, seats, spawns, collision };
+    this.load = load;
+    this.loading = new Map(); // name → { done, vrm, clips }
     this.list = [];
     for (const [name, vrm] of Object.entries(vrms)) {
-      const r = new Resident(name, vrm, { nav, seats, spawns, collision }, clips[name] || {});
+      const r = this.add(name, vrm, clips[name] || {});
       // 読み込んだ時刻の時間割で置く: 就寝中なら布団の上、自室待機なら自室の席、ほかは道順の最初の場所
-      r.mode = r.wantMode(now());
       if (r.mode === 'sleep') r.sleepNow();
       else {
-        const first = r.mode === 'room' ? { seat: r.sched.seat } : ROUTES[name].find((s) => s.at || s.seat);
+        const first = r.mode === 'room' ? { seat: r.sched.seat } : ROUTES[name].find((st) => st.at || st.seat);
         r.place(r.resolve(first).node);
         r.nextStep();
       }
-      scene.add(vrm.scene);
-      this.list.push(r);
     }
+  }
+
+  add(name, vrm, clips) {
+    const r = new Resident(name, vrm, this.world, clips);
+    r.mode = r.wantMode(now());
+    this.scene.add(vrm.scene);
+    this.list.push(r);
+    return r;
+  }
+
+  /** 玄関先が、プレイヤーから見えにくい（離れている）か */
+  doorClear(eye) {
+    const sp = this.world.spawns.find((v) => v.name === DOOR);
+    return !eye || Math.hypot(eye.x - sp.pos[0], eye.z - sp.pos[2]) > DOOR_CLEAR || Math.abs(eye.y - sp.pos[1]) > 2.5;
+  }
+
+  /** 出かける番の住人を玄関から送り出し、帰ってくる住人を読み込んで玄関先に出す（いるのは MAX_PRESENT 人まで） */
+  rotate(d, eye) {
+    const away = awayAt(d);
+    for (const r of [...this.list]) {
+      if (r.name === away && !r.leaving) r.leaving = true;
+      else if (r.name !== away && r.leaving) r.cancelLeave();
+      if (r.state === 'away' && !r.focused && this.doorClear(eye)) this.remove(r);
+    }
+    const back = ROSTER.find((n) => n !== away && !this.list.some((r) => r.name === n));
+    if (!back || !this.load) return;
+    const job = this.loading.get(back);
+    if (!job) { // 出かける住人が玄関へ歩いている間に読み込んでおく
+      const j = { done: false };
+      this.loading.set(back, j);
+      this.load(back).then((res) => Object.assign(j, res, { done: true }))
+        .catch((e) => { console.warn(`${back}: 読み込み失敗`, e); this.loading.delete(back); });
+      return;
+    }
+    if (!job.done || this.list.length >= MAX_PRESENT || !this.doorClear(eye)) return;
+    this.loading.delete(back);
+    const r = this.add(back, job.vrm, job.clips);
+    r.place(r.resolve({ at: DOOR }).node);
+    r.nextStep();
+  }
+
+  remove(r) {
+    this.list.splice(this.list.indexOf(r), 1);
+    this.scene.remove(r.root);
+    VRMUtils.deepDispose(r.root);
   }
 
   /** r と会話を始めた: ほかの住人は通常の動きに戻る */
@@ -564,6 +628,7 @@ export class Residents {
   update(dt, eye, camera) {
     let talk = null;
     const d = now();
+    this.rotate(d, eye);
     for (const r of this.list) {
       r.checkSchedule(d);
       r.update(dt, eye, camera);
