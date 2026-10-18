@@ -4,18 +4,19 @@ import { ROUTES } from './routes.js';
 import { STYLE } from './motions.js';
 import { SCHEDULE, BEDS, now, inHours, nightOf } from './schedule.js';
 import { TOUCH } from './touch.js';
+import { findShoes } from './shoes.js';
 
 const WALK_SPEED = 1.15;
 const TURN_RATE = 6;          // rad/s
 const SIT_TIME = 0.9;         // 座る・立つの遷移秒
 const rand = ([a, b]) => a + Math.random() * (b - a);
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
-// 靴: 館内では脱ぐ。足元がこの高さより低い（土間・屋外）ときだけ履く。Hachi は靴が肌に描いてあるので対象外
+// 靴: 館内では脱ぐ。足元がこの高さより低い（土間・屋外）ときだけ履く（3 人とも）
 // 踏み石・沓脱石など途中の高さで脱ぎ履きを繰り返さないよう、履くのは SHOE_ON より下へ、脱ぐのは SHOE_OFF より上へ行くとき
 const SHOE_Y = 0.2;
 const SHOE_ON = 0.1;
 const SHOE_OFF = 0.3;
-const SHOE_WEARERS = ['kyokucho', 'shinkuro'];
+const SHOE_WEARERS = ['kyokucho', 'shinkuro', 'hachi'];
 const SHOE_SWAP = 0.45;       // しゃがむ動きのこの割合のところで靴を付け外しする
 const PULL_SPEED = 2.2;        // 引っ張られて動く最大速度(m/s)
 const ARM_LEN = 0.55;         // つかまれた手と体の距離
@@ -72,9 +73,7 @@ class Resident {
     this.mode = 'routine';   // routine | sleep | room
     this.wokeNight = null;   // 起こされた夜（その夜はもう寝ない）
     this.root.rotation.order = 'YXZ'; // 向き → 傾き（横になる）の順
-    // 靴のメッシュ（VRoid の素材名 ..._Shoes_..._CLOTH。素材は本体と輪郭線の 2 つ組）
-    this.shoes = [];
-    if (SHOE_WEARERS.includes(name)) vrm.scene.traverse((o) => { if (o.isMesh && [].concat(o.material).some((m) => /Shoes/i.test(m.name))) this.shoes.push(o); });
+    this.shoes = SHOE_WEARERS.includes(name) ? findShoes(vrm) : [];
     this.shoesOn = true;
     if (this.sched?.bed) this.setupBed(BEDS[this.sched.bed]);
   }
