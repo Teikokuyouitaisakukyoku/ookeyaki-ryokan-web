@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Pose } from './pose.js';
+import { Pose, BREATH } from './pose.js';
 import { ROUTES } from './routes.js';
 import { STYLE } from './motions.js';
 import { SCHEDULE, BEDS, now, inHours, nightOf } from './schedule.js';
@@ -394,6 +394,10 @@ class Resident {
 
   update(dt, eye, camera) {
     const p = this.pose;
+    // 呼吸: 歩くと少し速く、寝ているとゆっくり深く
+    const asleep = this.state === 'sleeping';
+    p.breathRate = asleep ? 0.18 : BREATH.rate + 0.12 * p.walk;
+    p.breathDepth = asleep ? 1.4 : 1;
     const pos = this.root.position;
     const nav = this.world.nav;
     if (eye) this.sense(eye);
