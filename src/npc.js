@@ -25,6 +25,9 @@ const WAKE_R = 1.8;           // 寝ている住人がこの距離まで近づ�
 const NOTICE_R = 3.0;         // この距離まで近づくと立ち止まってこちらを見る
 const NOTICE_OUT = 3.6;       // 離れたら元の動きに戻る距離
 const TALK_R = 1.4;           // 正面のこの距離で会話
+const NOTICE_WAIT = 4;        // 気づいたあと、この秒数プレイヤーが近づいてこなければ元の動きに戻る
+const NEAR_STEP = 0.3;        // これだけ近づくと「近づいてきた」として待ち時間を数え直す
+const RENOTICE = 0.5;         // 見るのをやめたあと、そこからさらにこれだけ近づかれたらまた気づく
 export const TALK = {
   // name: 表示名 / pat: 会話中に頭をクリックしたとき（通常モードの点カーソル）。会話の文面は lines.js
   kyokucho: { name: '局長', pat: 'なにすんのよ！ セクハラよ！ セクハラ！' },
@@ -67,6 +70,10 @@ class Resident {
     this.talkable = false;  // 正面で話せる距離にいる
     this.dist = Infinity;
     this.ignore = false;     // 会話の後は、いったん離れるまでプレイヤーに反応しない
+    this.ignoreUntil = -Infinity; // 見飽きた（ignore）とき、この距離より近づかれたらまた気づく
+    this.focused = false;    // この住人と会話中
+    this.noticeT = 0;        // 気づいてから近づかれていない秒数
+    this.nearest = Infinity; // 気づいてからいちばん近づかれた距離
     this.suppressed = false; // ほかの住人が会話中は反応しない
     // 時間割
     this.sched = SCHEDULE[name] || null;
@@ -183,7 +190,7 @@ class Resident {
     }
     // 座る・立つの途中は気づいても動きを止めない
     const busy = this.state === 'sitting' || this.state === 'standing' || this.state === 'shoes';
-    if (this.ignore && this.dist > NOTICE_OUT) this.ignore = false;
+    if (this.ignore && (this.dist > NOTICE_OUT || this.dist < this.ignoreUntil)) this.ignore = false;
     const can = !this.ignore && !this.suppressed;
     if (!this.attending && this.dist < NOTICE_R && !busy && can) this.startAttend();
     else if (this.attending && (this.dist > NOTICE_OUT || !can)) this.endAttend();
@@ -194,8 +201,20 @@ class Resident {
     this.toward = toward;
   }
 
+  /** 見ている間、近づいてこないまま NOTICE_WAIT 秒たったら元の動きに戻る（会話中は除く） */
+  waitPlayer(dt) {
+    if (this.focused) return;
+    if (this.dist < this.nearest - NEAR_STEP) { this.nearest = this.dist; this.noticeT = 0; return; }
+    this.noticeT += dt;
+    if (this.noticeT < NOTICE_WAIT) return;
+    this.loseInterest();
+    this.ignoreUntil = this.dist - RENOTICE;
+  }
+
   startAttend() {
     this.attending = true;
+    this.noticeT = 0;
+    this.nearest = this.dist;
     if (this.state === 'walk' || this.state === 'idle') {
       // 立っていれば、挨拶の仕草を 1 回してから待機
       this.pose.play(this.style.greet, { once: true, fade: 0.3, onDone: () => this.attending && this.pose.play(pick(this.style.idle), { fade: 0.5 }) });
@@ -205,6 +224,7 @@ class Resident {
   /** 会話が終わった・返事がなかった: 元の動きに戻り、プレイヤーが離れるまで反応しない */
   loseInterest() {
     this.ignore = true;
+    this.ignoreUntil = -Infinity;
     this.talkable = false;
     if (this.attending) this.endAttend();
   }
@@ -417,6 +437,7 @@ class Resident {
     if (this.attending && this.state !== 'sitting' && this.state !== 'standing' && this.state !== 'shoes') {
       // 立ち止まって（座っていれば座ったまま）こちらを見る。タイマーも止める
       this.attend(dt, eye);
+      this.waitPlayer(dt);
       p.speed = 0;
       this.root.rotation.y = this.yaw;
       p.update(dt);
@@ -536,8 +557,8 @@ export class Residents {
   }
 
   /** r と会話を始めた: ほかの住人は通常の動きに戻る */
-  focus(r) { for (const q of this.list) if (q !== r) q.suppressed = true; }
-  unfocus() { for (const q of this.list) q.suppressed = false; }
+  focus(r) { for (const q of this.list) { q.suppressed = q !== r; q.focused = q === r; } }
+  unfocus() { for (const q of this.list) { q.suppressed = false; q.focused = false; } }
 
   /** eye = プレイヤーの目の位置。いちばん近い「話せる」住人を返す */
   update(dt, eye, camera) {
