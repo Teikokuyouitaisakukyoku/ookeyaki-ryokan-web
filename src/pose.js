@@ -18,6 +18,8 @@ const BONES = [
 ];
 
 const _e = new THREE.Euler();
+// 呼吸の大きさ（rad）と、普段の速さ（回/秒 = 4 秒に 1 回）
+export const BREATH = { chest: 0.012, shoulder: 0.018, rate: 0.25 };
 const lerp = (a, b, t) => a + (b - a) * t;
 
 // 座り姿勢（椅子 / 床）。各ボーンの [x, y, z] オイラー角（rad）
@@ -48,7 +50,14 @@ export class Pose {
     for (const n of BONES) this.bone[n] = vrm.humanoid.getNormalizedBoneNode(n);
     this.allBones = VRMHumanBoneList.map((n) => vrm.humanoid.getNormalizedBoneNode(n)).filter(Boolean);
     this.phase = Math.random() * Math.PI * 2;  // 歩行周期
-    this.t = Math.random() * 10;                // 呼吸
+    this.t = Math.random() * 10;
+    // 呼吸（どの動きにも上乗せする基本動作）。周期はキャラごとにずらす
+    this.breathPhase = Math.random() * Math.PI * 2;
+    this.breathRate = BREATH.rate;  // 回/秒。NPC 側で歩行・就寝に合わせて変える
+    this.breathDepth = 1;
+    this.upperChest = vrm.humanoid.getNormalizedBoneNode('upperChest');
+    this.shoulderL = vrm.humanoid.getNormalizedBoneNode('leftShoulder');
+    this.shoulderR = vrm.humanoid.getNormalizedBoneNode('rightShoulder');
     this.restHips = this.bone.hips.position.clone(); // 正規化 hips の基準位置（ルートからの m）
     this.restHipsY = this.restHips.y;
     this.walk = 0;       // 0..1
@@ -140,13 +149,12 @@ export class Pose {
     const w = this.walk * (1 - this.sit);
     this.phase += dt * Math.PI * 2 * (this.speed / 1.35) * 0.95 * (this.walk > 0.01 ? 1 : 0);
     const s = Math.sin(this.phase), c = Math.cos(this.phase);
-    const breath = Math.sin(this.t * 1.6) * 0.012;
     const sit = SIT[this.sitKind];
     const k = this.sit;
     const stand = {
       hips: [0, Math.sin(this.phase) * 0.06 * w, Math.sin(this.phase) * 0.03 * w],
-      spine: [0.02 + breath, -s * 0.07 * w, 0],
-      chest: [breath, -s * 0.07 * w, 0],
+      spine: [0.02, -s * 0.07 * w, 0],
+      chest: [0, -s * 0.07 * w, 0],
       neck: [0, 0, 0], head: [0, s * 0.05 * w, 0],
       leftUpperLeg: [s * 0.55 * w, 0, -0.03],
       rightUpperLeg: [-s * 0.55 * w, 0, 0.03],
@@ -207,6 +215,17 @@ export class Pose {
     hips.z = this.restHips.z;
     const upY = lerp(clipY, standY, pw);
     hips.y = lerp(upY, this.hipsY, this.sit);
+
+    // 呼吸（上乗せ）: 吸うと胸がわずかに反り、肩が少し上がる
+    this.breathPhase += dt * Math.PI * 2 * this.breathRate;
+    const inhale = (1 - Math.cos(this.breathPhase)) / 2 * this.breathDepth; // 0（吐き切り）〜1（吸い切り）
+    const lift = -inhale * BREATH.chest; // X 回転の − で上体が後ろへ反る
+    this.bone.spine?.quaternion.multiply(this._q.setFromEuler(_e.set(lift * 0.4, 0, 0, 'XYZ')));
+    this.bone.chest?.quaternion.multiply(this._q.setFromEuler(_e.set(lift * 0.6, 0, 0, 'XYZ')));
+    this.upperChest?.quaternion.multiply(this._q.setFromEuler(_e.set(lift * 0.5, 0, 0, 'XYZ')));
+    // 肩: 左は +X 向きなので Z 回転の + で上がる（右は逆）
+    this.shoulderL?.quaternion.multiply(this._q.setFromEuler(_e.set(0, 0, inhale * BREATH.shoulder, 'XYZ')));
+    this.shoulderR?.quaternion.multiply(this._q.setFromEuler(_e.set(0, 0, -inhale * BREATH.shoulder, 'XYZ')));
 
     // こちらを見る（上乗せ）
     if (this.lookYaw || this.lookPitch) {

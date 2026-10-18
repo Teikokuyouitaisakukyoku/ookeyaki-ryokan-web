@@ -3,6 +3,7 @@ import { loadAll } from './loader.js';
 import { Collision } from './collision.js';
 import { applyStageEdits, setupNightProps } from './stage-edits.js';
 import { now, inHours, setTime } from './schedule.js';
+import { Sky } from './sky.js';
 import { Player } from './player.js';
 import { NavGraph } from './nav.js';
 import { Residents } from './npc.js';
@@ -26,11 +27,14 @@ renderer.setSize(innerWidth, innerHeight, false);
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xa9c6dc);
 const camera = new THREE.PerspectiveCamera(72, innerWidth / innerHeight, 0.05, MOBILE ? 90 : 400); // スマホは遠くを描かない
-scene.add(new THREE.HemisphereLight(0xe4eef7, 0xd8cdb8, 1.5));
+const hemi = new THREE.HemisphereLight(0xe4eef7, 0xd8cdb8, 1.5);
+scene.add(hemi);
 const sun = new THREE.DirectionalLight(0xfff1dc, 2.2);
 sun.position.set(-18, 32, 22);
 sun.target.position.set(8, 0, -10);
 scene.add(sun, sun.target);
+const sky = new Sky(scene, hemi, sun); // 時刻で空の明るさと色を変える
+sky.update(now());
 
 addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight;
@@ -252,10 +256,11 @@ renderer.setAnimationLoop(() => {
     const p = player.feet;
     const d = now();
     setNight(inHours(d, 23, 5));
+    sky.update(d);
     hud.textContent = `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}   x ${p.x.toFixed(1)}  y ${p.y.toFixed(1)}  z ${p.z.toFixed(1)}   ${(fpsN / fpsT).toFixed(0)} fps`;
     fpsN = 0; fpsT = 0;
   }
 });
 
 // 動作確認・ナビ生成用
-window.app = { THREE, scene, camera, renderer, collision, player, world, nav, residents, talk, setTime, screenshot, vr, pickResident, aimRay, pressStart, pressEnd, updatePress, setHand };
+window.app = { THREE, scene, sky, camera, renderer, collision, player, world, nav, residents, talk, setTime, screenshot, vr, pickResident, aimRay, pressStart, pressEnd, updatePress, setHand };
