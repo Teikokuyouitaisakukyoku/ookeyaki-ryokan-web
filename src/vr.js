@@ -9,7 +9,7 @@ const PANEL_W = 1024, PANEL_H = 300;
 
 /**
  * VR モード（PC 接続の VR 機器・WebXR）。画面右下の［VR開始］で入り、［VR終了］かヘッドセット側の操作で通常モードへ戻る。
- *   左スティック: 移動 / 右スティック: 30° ずつ向きを変える / トリガー: 返事
+ *   左スティック: 移動 / 右スティック: 30° ずつ向きを変える / トリガー: 返事（問い詰めているときは証拠を順に突きつける）
  *   空間の手で住人に触れると反応する。手・腕はグリップでつかんで引っ張れる
  * 会話は顔の前の 3D パネルに出す（通常モードの字幕と同じ内容）。
  */
@@ -83,7 +83,7 @@ export class VR {
       const hand = { grip, ctl, palm, source: null, touching: null, drag: null };
       ctl.addEventListener('connected', (e) => { hand.source = e.data; });
       ctl.addEventListener('disconnected', () => { hand.source = null; });
-      ctl.addEventListener('selectstart', () => this.talk.input('key'));
+      ctl.addEventListener('selectstart', () => this.talk.input('vr'));
       ctl.addEventListener('squeezestart', () => this.grab(hand));
       ctl.addEventListener('squeezeend', () => this.release(hand));
       this.hands.push(hand);
@@ -160,7 +160,8 @@ export class VR {
       line += ch;
     }
     g.fillText(line, 40, y);
-    const hint = m.hint === 'ask' ? 'トリガーで返事・手で触れると…' : m.hint === 'news' ? 'リンクは通常モードで開けます' : '';
+    const hint = m.hint === 'ask' ? 'トリガーで返事・手で触れると…' : m.hint === 'news' ? 'リンクは通常モードで開けます'
+      : m.hint === 'case' ? 'トリガーで集めた証拠を順に突きつける' : '';
     if (hint) { g.fillStyle = '#b8ad98'; g.font = '26px sans-serif'; g.fillText(hint, 40, PANEL_H - 30); }
     this.panelTex.needsUpdate = true;
     this.panel.visible = this.active; // 通常モードでは HTML の字幕だけ
@@ -227,6 +228,7 @@ export class VR {
       if (!h.source) continue;
       this.palmPos(h, p);
       if (h.drag) { h.drag.dragTarget.copy(p); h.palm.material.color.set(0x7fd1ff); continue; }
+      this.talk.game?.touchItem(p); // 証拠の品に触れたら拾う
       const hit = this.touchAt(p);
       const key = hit ? `${hit.r.name}:${hit.part}` : null;
       if (key && key !== h.touching && (performance.now() - (hit.r.lastTouched || 0)) / 1000 > TOUCH_COOLDOWN) {

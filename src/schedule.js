@@ -1,3 +1,6 @@
+import { MOMENTS } from './story.js';
+import { sunTimes } from './sky.js';
+
 /**
  * 住人の時間割（プレイヤーのパソコンの時計で動く）。ここに書いた時間帯以外は routes.js の道順どおり。
  *   sleep: 自室の布団で寝る（プレイヤーが近づくと起きて、その夜は普段の行動に戻る）
@@ -58,4 +61,14 @@ export function awayAt(d) {
   const block = Math.floor((d.getHours() - 5) / 2);
   const day = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 864e5);
   return OUT_ORDER[(block + day) % OUT_ORDER.length];
+}
+
+/** 時刻 d に name が見せる「時間帯限定のできごと」（story.js の MOMENTS）。なければ undefined */
+export function momentAt(name, d) {
+  const h = d.getHours() + d.getMinutes() / 60;
+  return MOMENTS.find((m) => {
+    if (m.who !== name || m.wake || (m.days && !m.days.includes(d.getDay()))) return false;
+    const [from, to] = m.sunset ? m.sunset.map((o) => sunTimes(d).set + o) : [m.from, m.to];
+    return h >= from && h < to;
+  });
 }

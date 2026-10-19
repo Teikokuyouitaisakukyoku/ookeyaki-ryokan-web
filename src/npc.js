@@ -3,7 +3,8 @@ import { VRMUtils } from '@pixiv/three-vrm';
 import { Pose, BREATH } from './pose.js';
 import { ROUTES } from './routes.js';
 import { STYLE } from './motions.js';
-import { SCHEDULE, BEDS, now, inHours, nightOf, ROSTER, MAX_PRESENT, awayAt } from './schedule.js';
+import { SCHEDULE, BEDS, now, inHours, nightOf, ROSTER, MAX_PRESENT, awayAt, momentAt } from './schedule.js';
+import { MOMENTS } from './story.js';
 import { TOUCH } from './touch.js';
 import { findShoes } from './shoes.js';
 
@@ -81,7 +82,8 @@ class Resident {
     this.suppressed = false; // ほかの住人が会話中は反応しない
     // 時間割
     this.sched = SCHEDULE[name] || null;
-    this.mode = 'routine';   // routine | sleep | room
+    this.mode = 'routine';   // routine | sleep | room | moment:<id>（時間帯限定のできごと）
+    this.moment = null;      // いま見せているできごと（story.js の MOMENTS）
     this.wokeNight = null;   // 起こされた夜（その夜はもう寝ない）
     this.leaving = false;    // 出かける番: 今の動作の区切りで玄関先へ向かい、そこで消える（state = 'away' で待つ）
     this.root.rotation.order = 'YXZ'; // 向き → 傾き（横になる）の順
@@ -92,6 +94,8 @@ class Resident {
 
   // ---- 時間割
   wantMode(d) {
+    const m = momentAt(this.name, d);
+    if (m) return `moment:${m.id}`;
     const s = this.sched;
     if (!s || !inHours(d, s.from, s.to)) return 'routine';
     if (s.mode === 'sleep' && this.wokeNight === nightOf(d)) return 'routine';
@@ -99,10 +103,15 @@ class Resident {
   }
 
   /** 時刻で行動を切り替える。今の動作（座る途中など）は区切りまで待つ */
+  setMode(mode) {
+    this.mode = mode;
+    this.moment = mode.startsWith('moment:') ? MOMENTS.find((m) => `moment:${m.id}` === mode) : null;
+  }
+
   checkSchedule(d) {
     const want = this.wantMode(d);
     if (want === this.mode) return;
-    this.mode = want;
+    this.setMode(want);
     if (this.state === 'idle') this.timer = 0;
     else if (this.state === 'walk') this.nextStep();
     else if (this.state === 'sit-stay') this.timer = 0;
@@ -192,8 +201,8 @@ class Resident {
 
   /** byPlayer: プレイヤーに起こされた（その夜はもう寝ない）。朝の起床は false */
   wake(byPlayer = false) {
-    if (byPlayer) this.wokeNight = nightOf(now());
-    this.mode = 'routine';
+    if (byPlayer) { this.wokeNight = nightOf(now()); this.world.onWake?.(this); }
+    this.setMode('routine');
     this.state = 'waking';
     this.lieFrom = this.nodePos(this.bed.node);
     this.lieYawFrom = this.bed.yaw;
@@ -418,6 +427,7 @@ class Resident {
 
   resolve(target) {
     const { nav, seats, spawns } = this.world;
+    if (target.pos) return { node: nav.nearest(...target.pos), seat: null };
     if (target.seat) {
       const s = seats.find((v) => v.name === target.seat);
       if (!s) throw new Error(`seat not found: ${target.seat}`);
@@ -432,6 +442,12 @@ class Resident {
     if (this.leaving) return this.go({ at: DOOR, exit: true });
     if (this.mode === 'sleep') return this.go({ bed: true });
     if (this.mode === 'room') return this.go({ seat: this.sched.seat, stay: 'forever' });
+    if (this.moment) { // できごとの場所へ行き、時間が終わるまでそこにいる
+      const m = this.moment;
+      if (m.seat) return this.go({ seat: m.seat, stay: 'forever' });
+      if (this.node === this.resolve(m).node) return this.idleMoment();
+      return this.go(m);
+    }
     this.step = (this.step + 1) % this.script.length;
     const st = this.script[this.step];
     if (st.wait) {
@@ -456,6 +472,30 @@ class Resident {
     this.stay = st.stay;
     this.state = 'walk';
     this.pose.play(this.style.walk, { timeScale: this.walkScale, fade: 0.35 });
+  }
+
+  /** できごとの場所で立って過ごす（動きがあればそれを繰り返す） */
+  idleMoment() {
+    this.state = 'idle';
+    this.timer = 20;
+    this.pose.play(this.moment.motion || pick(this.style.idle), { fade: 0.5 });
+    this.gestureAt = -1;
+  }
+
+  /** できごとの場所に着いているなら、そのできごと */
+  momentNow() {
+    const m = this.moment;
+    if (!m) return null;
+    if (m.seat) return this.state === 'sit-stay' && this.seat?.name === m.seat ? m : null;
+    return this.state === 'idle' && this.node === this.resolve(m).node ? m : null;
+  }
+
+  /** 読み込んだ時点でできごとの最中: その場所に置く */
+  placeMoment() {
+    const t = this.resolve(this.moment);
+    this.place(t.node);
+    if (t.seat) this.sitNow(t.seat, Infinity);
+    else this.idleMoment();
   }
 
   /** 立ち待機を選ぶ（手続きか VRMA）。長めの待機ではときどき仕草を挟む */
@@ -615,6 +655,7 @@ export class Residents {
       const r = this.add(name, vrm, clips[name] || {});
       // 読み込んだ時刻の時間割で置く: 就寝中なら布団の上、自室待機なら自室の席、ほかは時計から決めた道順の途中
       if (r.mode === 'sleep') r.sleepNow();
+      else if (r.moment) r.placeMoment();
       else if (r.mode === 'room') {
         r.place(r.resolve({ seat: r.sched.seat }).node);
         r.nextStep();
@@ -624,7 +665,7 @@ export class Residents {
 
   add(name, vrm, clips) {
     const r = new Resident(name, vrm, this.world, clips);
-    r.mode = r.wantMode(now());
+    r.setMode(r.wantMode(now()));
     this.scene.add(vrm.scene);
     this.list.push(r);
     return r;
