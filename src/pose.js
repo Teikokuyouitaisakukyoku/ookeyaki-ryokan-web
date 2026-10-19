@@ -55,6 +55,10 @@ export class Pose {
     this.breathPhase = Math.random() * Math.PI * 2;
     this.breathRate = BREATH.rate;  // 回/秒。NPC 側で歩行・就寝に合わせて変える
     this.breathDepth = 1;
+    // 自動まばたき: 次のまばたきまでの秒数（個体ごとにずらす）
+    this.blinkT = 2 + Math.random() * 4;
+    this.blinkOut = 0;  // 前のフレームに自分が書いた blink の値
+    this.blinkHold = 0; // npc.js が指定した blink（就寝中の 1 など）。これより開けない
     this.upperChest = vrm.humanoid.getNormalizedBoneNode('upperChest');
     this.shoulderL = vrm.humanoid.getNormalizedBoneNode('leftShoulder');
     this.shoulderR = vrm.humanoid.getNormalizedBoneNode('rightShoulder');
@@ -198,6 +202,14 @@ export class Pose {
     // VRMA: 毎フレーム基準姿勢に戻してから mixer に書かせる（止めた動きのボーンが残らないように）
     for (const b of this.allBones) b.quaternion.identity();
     this.bone.hips.position.copy(this.restHips);
+    // まばたき: 前のフレームから値が変わっていれば npc.js が指定した（就寝など）。0 に戻してから mixer に書かせ、
+    // VRMA に入っているまばたきの値だけを取り出す（入っていない動きなら 0 のまま）
+    const em = this.vrm.expressionManager;
+    if (em) {
+      const cur = em.getValue('blink') ?? 0;
+      if (cur !== this.blinkOut) this.blinkHold = cur;
+      em.setValue('blink', 0);
+    }
     this.mixer.update(dt);
     const clipY = this.bone.hips.position.y;
 
@@ -231,6 +243,14 @@ export class Pose {
     if (this.lookYaw || this.lookPitch) {
       this.bone.neck?.quaternion.multiply(this._q.setFromEuler(_e.set(this.lookPitch * 0.4, this.lookYaw * 0.4, 0, 'XYZ')));
       this.bone.head?.quaternion.multiply(this._q.setFromEuler(_e.set(this.lookPitch * 0.6, this.lookYaw * 0.6, 0, 'XYZ')));
+    }
+    // 自動まばたき: 2〜6 秒おきに 0.15 秒で閉じて開く。VRMA のまばたき・就寝中の指定とは大きいほうを使う
+    if (em) {
+      this.blinkT -= dt;
+      const b = this.blinkT < 0 ? Math.sin(Math.min(1, -this.blinkT / 0.15) * Math.PI) : 0;
+      if (this.blinkT < -0.15) this.blinkT = 2 + Math.random() * 4;
+      this.blinkOut = Math.max(b, em.getValue('blink') ?? 0, this.blinkHold);
+      em.setValue('blink', this.blinkOut);
     }
     this.vrm.update(dt);
   }
