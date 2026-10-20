@@ -104,9 +104,32 @@
     body.mobile #dialog { bottom: 12px; left: auto; right: 12px; transform: none; width: min(56vw, 520px); }
     body.mobile #dialog.show { transform: none; }
   }
+  /* ---- 事件の証拠ボタン・手帳 ---- */
+  #dialog.case { pointer-events: auto; }
+  #dialog .choices { display: none; margin-top: 10px; gap: 8px; flex-wrap: wrap; font-size: 13px; color: #b8ad98; }
+  #dialog.case .choices { display: flex; }
+  #dialog .choices button { padding: 6px 12px; border-radius: 6px; border: 1px solid #c98a3d; background: #3a2c1e;
+    color: #f0c36b; font: inherit; font-size: 14px; cursor: pointer; }
+  #dialog .choices button:hover { background: #5a4228; }
+  #dialog .case-hint { display: none; margin-top: 8px; font-size: 12px; color: #b8ad98; }
+  #dialog.case .case-hint { display: block; }
+  #notebook { position: fixed; inset: 0; z-index: 7; display: none; align-items: center; justify-content: center;
+    background: rgba(0,0,0,.35); }
+  #notebook.show { display: flex; }
+  #notebook .card { width: min(560px, 92vw); max-height: 84vh; overflow-y: auto; box-sizing: border-box; padding: 18px 24px;
+    background: rgba(24,21,17,.94); border: 1px solid #5b4f3e; border-radius: 10px; font-size: 14px; line-height: 1.6; }
+  #notebook h3 { margin: 6px 0 4px; font-size: 16px; font-weight: 500; letter-spacing: .1em; color: #f0c36b; }
+  #notebook h3 small { margin-left: 10px; font-size: 12px; color: #b8ad98; letter-spacing: 0; }
+  #notebook p { margin: 4px 0 6px; }
+  #notebook ul { margin: 0 0 12px; padding-left: 18px; }
+  #notebook li { margin: 3px 0; color: #8a7f6c; }
+  #notebook li.got { color: #e6dcc6; }
+  #notebook li span { display: block; font-size: 12px; color: #a89c86; }
+  #notebook .close { margin-top: 8px; font-size: 12px; color: #8a7f6c; }
   #toast { position: fixed; right: 16px; top: 16px; z-index: 6; padding: 8px 14px; border-radius: 6px; font-size: 13px;
     background: rgba(24,21,17,.85); border: 1px solid #5b4f3e; opacity: 0; transition: opacity .3s; pointer-events: none; }
   #toast.show { opacity: 1; }
+  body.mobile #toast { top: calc(60px + env(safe-area-inset-top)); right: calc(12px + env(safe-area-inset-right)); } /* 右上のボタンの下 */
 </style>
 </head>
 <body>
@@ -122,21 +145,26 @@
 </div>
 <div id="toast"></div>
 <div id="stick" class="only-mobile"><i></i></div>
-<div id="mbtns" class="only-mobile"><button id="btn-shot">撮影</button><button id="btn-menu">メニュー</button></div>
+<div id="mbtns" class="only-mobile"><button id="btn-note">手帳</button><button id="btn-shot">撮影</button><button id="btn-menu">メニュー</button></div>
+<div id="notebook"></div>
 <button id="vr-btn" disabled>VR 確認中…</button>
 <div id="hud"></div>
 <div id="dialog"><div class="who"></div><div class="line"></div>
   <div class="hint"><span class="only-pc"><kbd>Space</kbd>／クリックで返事・頭をクリックすると…</span><span class="only-mobile">画面をタップで返事・住人をタップすると…</span><span class="timer"><i></i></span></div>
-  <div class="news-hint"><span class="only-pc">リンクをクリック（<kbd>Enter</kbd>）で開く・画面をクリックで戻る</span><span class="only-mobile">リンクをタップで開く・画面をタップで閉じる</span></div></div>
+  <div class="news-hint"><span class="only-pc">リンクをクリック（<kbd>Enter</kbd>）で開く・画面をクリックで戻る</span><span class="only-mobile">リンクをタップで開く・画面をタップで閉じる</span></div>
+  <div class="choices"></div>
+  <div class="case-hint"><span class="only-pc">証拠をクリックして突きつける・画面をクリックで戻る</span><span class="only-mobile">証拠をタップして突きつける・画面をタップで戻る</span></div></div>
 <div id="start"><div class="card">
   <h2>大欅旅館</h2>
   <div class="only-mobile">左下のスティックで移動（いっぱいに倒すと走る）・画面をドラッグで視点</div>
   <div class="only-mobile">住人をタップ: 触れる（手・腕は長押ししたまま動かすと引っ張る）</div>
-  <div class="only-mobile">話しかけられたら画面をタップで返事・右上のボタンで撮影</div>
+  <div class="only-mobile">話しかけられたら画面をタップで返事・右上のボタンで手帳と撮影</div>
+  <div class="only-mobile">光っている物はタップで拾える（限定プリン事件の証拠）</div>
   <div class="only-mobile go">タップで開始</div>
   <div class="only-pc"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移動　<kbd>Shift</kbd> 走る　マウス 視点　<kbd>Esc</kbd> カーソルを戻す</div>
   <div class="only-pc"><kbd>1</kbd>〜<kbd>9</kbd>・<kbd>[</kbd><kbd>]</kbd> 出発点へ移動</div>
-  <div class="only-pc"><kbd>F5</kbd> 撮影（スクリーンショットを保存）　<kbd>V</kbd> カーソルを点／手に切り替え</div>
+  <div class="only-pc"><kbd>F5</kbd> 撮影（スクリーンショットを保存）　<kbd>V</kbd> カーソルを点／手に切り替え　<kbd>Tab</kbd> 手帳（事件の証拠・できごと図鑑）</div>
+  <div class="only-pc">光っている物はクリックで拾える（限定プリン事件の証拠）</div>
   <div class="only-pc">手のカーソルで住人をクリック: 触れる（手・腕は押したまま動かすと引っ張る）</div>
   <div class="only-pc">右下の［VR開始］: VR モード（PC につないだ VR 機器）</div>
   <div class="go only-pc">クリックで開始</div>
