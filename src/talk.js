@@ -18,6 +18,8 @@ const PLAYER = { name: 'あなた', reply: '特に何も……' };
  *   3 秒たつ・離れる → 住人は興味を失って元の動きへ（いったん離れるまで再び反応しない）
  *   返事のあとはお知らせ（リンク付き）を話す。リンクを押せるようカーソルを解放し、
  *   リンクのクリック・Enter で開く。画面クリック（視点操作に戻る）・立ち去る・時間切れで終わる
+ *   ゲーム（game.js）が第一声を差し替える: 事件の始まり・証言・できごと。事件中の真九郎は言い訳をするので、
+ *   集めた証拠のボタンで突きつける（VR はトリガーで順に突きつける）。画面クリック・立ち去るで終わる
  */
 export class Conversation {
   constructor(dialog, residents, camera) {
@@ -26,9 +28,12 @@ export class Conversation {
     this.line = dialog.querySelector('.line');
     this.hint = dialog.querySelector('.hint');
     this.bar = dialog.querySelector('.timer i');
+    this.choices = dialog.querySelector('.choices');
+    this.game = null; // game.js（限定プリン事件・できごと図鑑）
+    this.cycle = 0;   // VR で次に突きつける証拠
     this.residents = residents;
     this.camera = camera;
-    this.state = 'none'; // none | ask | after | news
+    this.state = 'none'; // none | ask | after | news | case（真九郎を問い詰めている）
     this.r = null;
     this.t = 0;
     this.ray = new THREE.Ray();
@@ -53,7 +58,7 @@ export class Conversation {
       this.line.append(`「${text.slice(0, at)}`, a, `${text.slice(at + link.label.length)}」`);
     }
     this.dialog.classList.add('show');
-    this.onShow({ name, text, isPlayer, hint: this.state === 'ask' ? 'ask' : link ? 'news' : null });
+    this.onShow({ name, text, isPlayer, hint: this.state === 'ask' ? 'ask' : link ? 'news' : this.state === 'case' ? 'case' : null });
   }
 
   /** candidate = 正面で話せる住人（いなければ null） */
@@ -63,6 +68,7 @@ export class Conversation {
       return;
     }
     if (this.r.dist > NOTICE_OUT) { this.end(); return; } // プレイヤーが立ち去った
+    if (this.state === 'case') return; // 問い詰めている間は時間切れにしない
     if (this.state === 'ask') {
       this.t += dt;
       this.bar.style.width = `${Math.max(0, 1 - this.t / ANSWER_TIME) * 100}%`;
@@ -75,11 +81,43 @@ export class Conversation {
 
   start(r) {
     this.r = r;
+    this.residents.focus(r);
+    const g = this.game?.onTalk(r);
+    if (g?.interrogate) { this.interrogate(); return; }
     this.state = 'ask';
     this.t = 0;
-    this.residents.focus(r);
-    this.show(TALK[r.name].name, pickOne(LINES[r.name].greet[timeSlot(now())]));
+    this.show(TALK[r.name].name, g?.text ?? pickOne(LINES[r.name].greet[timeSlot(now())]));
     this.dialog.classList.add('asking');
+  }
+
+  /** 真九郎を問い詰める: 今の言い訳と、集めた証拠のボタンを出す（押せるようカーソルを解放する） */
+  interrogate() {
+    const q = this.game.question();
+    this.state = 'case';
+    this.next = null;
+    this.dialog.classList.remove('asking', 'news');
+    this.show(TALK[this.r.name].name, q.excuse);
+    this.choices.replaceChildren();
+    this.options = q.choices;
+    if (!q.choices.length) this.choices.textContent = q.empty;
+    for (const c of q.choices) {
+      const b = document.createElement('button');
+      b.textContent = c.label;
+      b.addEventListener('click', (e) => { e.stopPropagation(); this.present(c.id); });
+      this.choices.append(b);
+    }
+    this.dialog.classList.add('case');
+    if (document.pointerLockElement) document.exitPointerLock();
+  }
+
+  /** 証拠を突きつけた: やりとりを順に見せ、続くならまた言い訳へ。解決したら終わる */
+  present(id) {
+    if (this.state !== 'case') return;
+    const res = this.game.present(id);
+    this.dialog.classList.remove('case');
+    const last = res.again ? () => this.interrogate() : () => { this.game.solvedToast(); this.end(); };
+    const chain = res.lines.reduceRight((next, [who, text, isPlayer]) => () => this.after(who, text, isPlayer, next), last);
+    chain();
   }
 
   /** 住人に触れた（part）・引っ張り始めた（part = 'pull'）: 反応のせりふを出す */
@@ -93,6 +131,10 @@ export class Conversation {
 
   /** スペース（kind = 'key'）か、照準でのクリック（kind = 'click'） */
   input(kind) {
+    if (this.state === 'case') { // VR はトリガーで証拠を順に突きつける
+      if (kind === 'vr' && this.options.length) this.present(this.options[this.cycle++ % this.options.length].id);
+      return;
+    }
     if (this.state !== 'ask') return;
     if (kind === 'click') {
       this.camera.getWorldPosition(this.ray.origin);
@@ -110,7 +152,7 @@ export class Conversation {
 
   after(name, text, isPlayer, next = null) {
     this.state = 'after';
-    this.t = next ? REPLY_TIME : AFTER_TIME;
+    this.t = Math.max(next ? REPLY_TIME : AFTER_TIME, text.length * 0.07); // 長い台詞は読める時間をのばす
     this.next = next;
     this.dialog.classList.remove('asking', 'news');
     this.show(name, text, isPlayer);
@@ -135,14 +177,14 @@ export class Conversation {
 
   /** 視点操作に戻った（画面をクリックしてカーソルが隠れた） */
   relocked() {
-    if (this.state === 'news') this.end();
+    if (this.state === 'news' || this.state === 'case') this.end();
   }
 
   end() {
     if (this.state === 'none') return;
     this.next = null;
     this.onShow(null);
-    this.dialog.classList.remove('show', 'asking', 'news');
+    this.dialog.classList.remove('show', 'asking', 'news', 'case');
     this.r.loseInterest();
     this.residents.unfocus();
     this.r = null;

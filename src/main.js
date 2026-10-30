@@ -13,6 +13,7 @@ import { VR } from './vr.js';
 import { pickRay, GRAB } from './touch.js';
 import { MOBILE } from './device.js';
 import { TouchControls } from './mobile.js';
+import { Game } from './game.js';
 
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
@@ -96,7 +97,7 @@ const startEl = $('start');
 player.onLockChange = (locked) => {
   if (locked) talk?.relocked();
   // お知らせ中はリンクを押せるよう、操作案内を出さずにカーソルだけ解放する
-  startEl.classList.toggle('show', !locked && talk?.state !== 'news');
+  startEl.classList.toggle('show', !locked && talk?.state !== 'news' && talk?.state !== 'case');
 };
 startEl.addEventListener('click', () => (MOBILE ? startEl.classList.remove('show') : player.lock()));
 startEl.querySelector('.credit a').addEventListener('click', (e) => e.stopPropagation()); // ライセンス表記は別タブで開くだけ
@@ -110,6 +111,12 @@ startEl.classList.add('show');
 // ---- 会話（正面まで来た住人と話す。スペース／クリックで返事）
 const talk = residents ? new Conversation($('dialog'), residents, camera) : null;
 if (talk) talk.onEnd = () => startEl.classList.toggle('show', !MOBILE && !player.locked && !vr?.active);
+// ---- ゲーム（限定プリン事件・できごと図鑑）。Tab／スマホは「手帳」で進み具合を見る
+const game = residents ? new Game({ scene, collision, toast: (t) => toast(t), notebook: $('notebook') }) : null;
+if (game) {
+  talk.game = game;
+  residents.world.onWake = (r) => game.woke(r);
+}
 let vr = null;
 if (residents) {
   vr = new VR({ renderer, scene, camera, player, collision, residents, talk, button: $('vr-btn') });
@@ -117,6 +124,7 @@ if (residents) {
   vr.onEnd = () => { document.body.classList.remove('vr'); startEl.classList.add('show'); };
 }
 addEventListener('keydown', (e) => {
+  if (e.code === 'Tab') { e.preventDefault(); game?.toggleNotebook(); }
   if (e.code === 'Space') { e.preventDefault(); talk?.input('key'); }
   if (e.code === 'Enter' || e.code === 'NumpadEnter') talk?.openLink();
 });
@@ -160,6 +168,7 @@ function pressStart() {
       return;
     }
   }
+  if (game?.pickItem(aimRay())) return; // 照準の先の証拠の品を拾う
   talk?.input('click'); // 照準（画面中央）の先をクリック: 返事・頭をなでる
 }
 function pressEnd() {
@@ -187,9 +196,10 @@ if (MOBILE) {
     player,
     // タップ: 住人に触れる。住人以外は返事（お知らせ中なら閉じる）
     onTap(x, y) {
+      if (game?.pickItem(aimRay(x, y))) return;
       const hit = pickResident(x, y);
       if (hit) { talk?.touch(hit.r, hit.part); return; }
-      if (talk?.state === 'news') talk.relocked();
+      if (talk?.state === 'news' || talk?.state === 'case') talk.relocked();
       else talk?.input('key');
     },
     // 長押し: 手・腕なら引っ張る。ほかの部位なら触れる
@@ -209,6 +219,7 @@ if (MOBILE) {
   });
   $('btn-shot').addEventListener('click', () => screenshot());
   $('btn-menu').addEventListener('click', () => startEl.classList.add('show'));
+  $('btn-note').addEventListener('click', () => game?.toggleNotebook());
 }
 
 // ---- 撮影（F5）・カーソル切り替え（V）
@@ -255,6 +266,7 @@ renderer.setAnimationLoop(() => {
   else { player.update(dt); updatePress(); }
   const talker = residents?.update(dt, camera.getWorldPosition(eye), camera);
   talk?.update(dt, talker);
+  game?.update(clock.elapsedTime);
   renderer.render(scene, camera);
   fpsN++; fpsT += dt;
   if (fpsT > 0.5) {
@@ -268,4 +280,4 @@ renderer.setAnimationLoop(() => {
 });
 
 // 動作確認・ナビ生成用
-window.app = { THREE, scene, sky, camera, renderer, collision, player, world, nav, residents, talk, setTime, screenshot, vr, pickResident, aimRay, pressStart, pressEnd, updatePress, setHand };
+window.app = { THREE, scene, sky, game, camera, renderer, collision, player, world, nav, residents, talk, setTime, screenshot, vr, pickResident, aimRay, pressStart, pressEnd, updatePress, setHand };
